@@ -1,0 +1,39 @@
+﻿
+> web@0.1.0 lint
+> eslint
+
+
+D:\rawr\apps\web\src\app\account\page.tsx
+  5:42  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\app\admin\customers\[id]\page.tsx
+  6:27  warning  'MapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\app\careers\actions.ts
+  4:10  warning  'revalidatePath' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\app\careers\page.tsx
+  1:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\app\orders\page.tsx
+  85:49  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\rawr\apps\web\src\app\product\[id]\GalleryUpload.tsx
+  10:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+D:\rawr\apps\web\src\app\product\[id]\ProductClient.tsx
+  34:21  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  61:51  warning  'newPresences' is defined but never used                                                               @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\app\sitemap.ts
+  2:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\helpers\billing.ts
+  2:8  warning  'autoTable' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\rawr\apps\web\src\utils\supabase\middleware.ts
+  18:58  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 11 problems (0 errors, 11 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+
