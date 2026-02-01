@@ -43,6 +43,55 @@ export function ProfileForm({ user, profile }: { user: any, profile: any }) {
             </div>
 
             <div>
+                <label className="block text-sm font-bold uppercase mb-1">Phone Number</label>
+                <input
+                    name="phone_number"
+                    defaultValue={profile?.phone_number || ''}
+                    className="w-full p-2 border border-gray-300 rounded font-sans"
+                    placeholder="+1 (555) 000-0000"
+                />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-bold uppercase mb-1">Birthday</label>
+                    <input
+                        name="birthday"
+                        type="date"
+                        defaultValue={profile?.birthday || ''}
+                        className="w-full p-2 border border-gray-300 rounded font-sans"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-bold uppercase mb-1">Gender</label>
+                    <select
+                        name="gender"
+                        defaultValue={profile?.gender || ''}
+                        className="w-full p-2 border border-gray-300 rounded font-sans bg-white"
+                    >
+                        <option value="">Select...</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="non-binary">Non-Binary</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                        name="marketing_opt_in"
+                        type="checkbox"
+                        defaultChecked={profile?.marketing_opt_in}
+                        className="w-4 h-4 accent-rawr-black"
+                    />
+                    <span className="text-sm font-bold uppercase">Subscribe to The Cult (Newsletter)</span>
+                </label>
+                <p className="text-xs text-gray-500 mt-1 ml-6">Receive drop alerts and exclusive offers.</p>
+            </div>
+
+            <div>
                 <label className="block text-sm font-bold uppercase mb-1">Avatar URL</label>
                 <input
                     name="avatar_url"

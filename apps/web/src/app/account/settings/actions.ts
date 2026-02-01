@@ -13,6 +13,10 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     const updates = {
         full_name: formData.get('full_name') as string,
+        phone_number: formData.get('phone_number') as string,
+        birthday: formData.get('birthday') || null,
+        gender: formData.get('gender') || null,
+        marketing_opt_in: formData.get('marketing_opt_in') === 'on',
         avatar_url: formData.get('avatar_url') as string,
         updated_at: new Date().toISOString(),
     }
