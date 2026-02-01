@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Heart } from "lucide-react";
 import { toggleWishlist } from "./actions";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function WishlistPage() {
     const supabase = await createClient();
@@ -42,12 +43,13 @@ export default async function WishlistPage() {
             </div>
 
             {items.length === 0 ? (
-                <div className="text-center py-20 bg-white border-2 border-rawr-black">
-                    <p className="text-xl font-bold uppercase mb-4">Your stash is empty.</p>
-                    <Link href="/shop">
-                        <Button>Go Hunt</Button>
-                    </Link>
-                </div>
+                <EmptyState
+                    icon={Heart}
+                    title="Your Stash is Empty"
+                    description="Nothing here yet. Find what you love and save it for later."
+                    actionLabel="Go Hunt"
+                    actionLink="/shop"
+                />
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}

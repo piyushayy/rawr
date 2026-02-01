@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import NextImage from "next/image";
+import { Package } from "lucide-react";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function OrdersPage() {
     const supabase = await createClient();
@@ -38,12 +40,13 @@ export default async function OrdersPage() {
                 </h1>
 
                 {orders.length === 0 ? (
-                    <div className="text-center py-20 bg-white border-2 border-rawr-black">
-                        <p className="text-xl font-bold uppercase mb-4">No orders yet.</p>
-                        <Link href="/shop">
-                            <Button>Go Shopping</Button>
-                        </Link>
-                    </div>
+                    <EmptyState
+                        icon={Package}
+                        title="No Orders Yet"
+                        description="Your order history is cleaner than a brand new pair of whites. Change that."
+                        actionLabel="Go Shopping"
+                        actionLink="/shop"
+                    />
                 ) : (
                     <div className="space-y-8">
                         {orders.map((order) => (

@@ -56,6 +56,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { AnnouncementBar } from "@/components/shared/AnnouncementBar";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -73,6 +75,7 @@ export default async function RootLayout({
       >
         <PulseFeed />
         <div className="flex flex-col min-h-screen">
+          <AnnouncementBar />
           <Ticker />
           <Navbar user={user} />
           <CartDrawer />

@@ -11,9 +11,12 @@ import { createClient } from "@/utils/supabase/client";
 import { CountdownTimer } from "@/components/shared/CountdownTimer";
 import { Price } from "@/components/shared/Price";
 
+import { ProductGallery } from "./ProductGallery";
+import { SizeGuide } from "./SizeGuide";
+
 export const ProductClient = ({ product: initialProduct, children }: { product: Product, children?: React.ReactNode }) => {
+    // ... (keep existing state)
     const { addItem } = useCartStore();
-    const [selectedImage, setSelectedImage] = useState(0);
     const [viewerCount, setViewerCount] = useState(0);
     const [isSoldOut, setIsSoldOut] = useState(initialProduct.soldOut);
     const [hasDropped, setHasDropped] = useState(
@@ -90,18 +93,7 @@ export const ProductClient = ({ product: initialProduct, children }: { product: 
 
                     {/* Image Gallery */}
                     <div className="lg:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {product.images.map((img, index) => (
-                                <motion.div
-                                    key={index}
-                                    className={`relative aspect-[3/4] border-2 border-rawr-black bg-gray-100 cursor-pointer ${selectedImage === index ? 'ring-4 ring-rawr-red' : ''}`}
-                                    onClick={() => setSelectedImage(index)}
-                                    whileHover={{ scale: 0.98 }}
-                                >
-                                    <Image src={img} alt={`${product.title} view ${index + 1}`} fill className="object-cover" />
-                                </motion.div>
-                            ))}
-                        </div>
+                        <ProductGallery images={product.images} title={product.title} />
                     </div>
 
                     {/* Product Info */}
@@ -113,8 +105,11 @@ export const ProductClient = ({ product: initialProduct, children }: { product: 
                                 </h1>
                                 <div className="flex justify-between items-center border-b-2 border-rawr-black pb-4">
                                     <p className="text-3xl font-bold"><Price amount={product.price} /></p>
-                                    <div className={`px-3 py-1 font-bold uppercase ${product.soldOut ? 'bg-red-500 text-white' : 'bg-rawr-black text-rawr-white'}`}>
-                                        {product.soldOut ? 'SOLD OUT' : `Size: ${product.size}`}
+                                    <div className="flex items-center gap-4">
+                                        <SizeGuide />
+                                        <div className={`px-3 py-1 font-bold uppercase ${product.soldOut ? 'bg-red-500 text-white' : 'bg-rawr-black text-rawr-white'}`}>
+                                            {product.soldOut ? 'SOLD OUT' : `Size: ${product.size}`}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

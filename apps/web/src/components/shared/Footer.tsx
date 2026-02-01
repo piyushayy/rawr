@@ -15,9 +15,10 @@ export const Footer = () => {
 
                 <div className="flex flex-col gap-4">
                     <h3 className="font-heading font-bold text-xl uppercase text-rawr-white">Help</h3>
+                    <a href="/faq" className="font-body text-sm hover:text-rawr-red transition-colors">Protocol (FAQ)</a>
+                    <a href="/contact" className="font-body text-sm hover:text-rawr-red transition-colors">Contact Command</a>
                     <a href="/terms" className="font-body text-sm hover:text-rawr-red transition-colors">Terms</a>
                     <a href="/privacy" className="font-body text-sm hover:text-rawr-red transition-colors">Privacy</a>
-                    <a href="/careers" className="font-body text-sm hover:text-rawr-red transition-colors">Careers</a>
                 </div>
 
                 <div className="flex flex-col gap-4">

@@ -8,10 +8,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Price } from "./Price";
 
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ShoppingBag } from "lucide-react";
+
 export const CartDrawer = () => {
     const { isOpen, toggleCart, items, removeItem } = useCartStore();
 
     const total = items.reduce((acc, item) => acc + item.price, 0);
+    const FREE_SHIPPING_THRESHOLD = 150;
+    const progress = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
 
     return (
         <AnimatePresence>
@@ -42,13 +47,31 @@ export const CartDrawer = () => {
                             </button>
                         </div>
 
+                        {/* Free Shipping Bar */}
+                        {items.length > 0 && (
+                            <div className="bg-gray-100 p-4 border-b-2 border-rawr-black">
+                                <p className="text-xs font-bold uppercase mb-2 text-center">
+                                    {total >= FREE_SHIPPING_THRESHOLD
+                                        ? "You've unlocked Free Shipping!"
+                                        : `Add $${FREE_SHIPPING_THRESHOLD - total} for Free Shipping`
+                                    }
+                                </p>
+                                <div className="h-2 bg-gray-300 rounded-full overflow-hidden">
+                                    <div className="h-full bg-rawr-red transition-all duration-500" style={{ width: `${progress}%` }} />
+                                </div>
+                            </div>
+                        )}
+
                         {/* Items */}
                         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
                             {items.length === 0 ? (
-                                <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
-                                    <h3 className="font-heading font-bold text-2xl mb-2">EMPTY</h3>
-                                    <p className="font-body">Your bag is empty. Fix that.</p>
-                                </div>
+                                <EmptyState
+                                    icon={ShoppingBag}
+                                    title="Your Bag is Empty"
+                                    description="You can't flex with an empty cart. Go buy something."
+                                    actionLabel="Start Shopping"
+                                    actionLink="/shop"
+                                />
                             ) : (
                                 items.map((item, index) => (
                                     <div key={`${item.id}-${index}`} className="flex gap-4 p-4 border-2 border-rawr-black bg-white shadow-[4px_4px_0px_0px_#050505]">
@@ -73,18 +96,20 @@ export const CartDrawer = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 border-t-2 border-rawr-black bg-white">
-                            <div className="flex justify-between items-center mb-6 font-heading font-black text-3xl">
-                                <span>TOTAL</span>
-                                <span><Price amount={total} /></span>
+                        {items.length > 0 && (
+                            <div className="p-6 border-t-2 border-rawr-black bg-white">
+                                <div className="flex justify-between items-center mb-6 font-heading font-black text-3xl">
+                                    <span>TOTAL</span>
+                                    <span><Price amount={total} /></span>
+                                </div>
+                                <Link href="/checkout" onClick={toggleCart} className="w-full">
+                                    <Button className="w-full h-16 text-xl tracking-widest flex justify-between items-center px-6">
+                                        <span>SECURE THE BAG</span>
+                                        <ArrowRight className="w-6 h-6" />
+                                    </Button>
+                                </Link>
                             </div>
-                            <Link href="/checkout" onClick={toggleCart} className="w-full">
-                                <Button className="w-full h-16 text-xl tracking-widest flex justify-between items-center px-6" disabled={items.length === 0}>
-                                    <span>SECURE THE BAG</span>
-                                    <ArrowRight className="w-6 h-6" />
-                                </Button>
-                            </Link>
-                        </div>
+                        )}
                     </motion.div>
                 </>
             )}

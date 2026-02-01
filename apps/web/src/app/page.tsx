@@ -1,4 +1,4 @@
-import { Hero } from "@/components/shared/Hero";
+import { HeroSlider } from "@/components/shared/HeroSlider";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { getLatestDrop } from "@/services/products";
 import { Marquee } from "@/components/shared/Marquee";
@@ -10,7 +10,7 @@ export default async function Home() {
 
   return (
     <div className="bg-rawr-white min-h-screen pb-20">
-      <Hero />
+      <HeroSlider />
 
       {/* Marquee Separator, using Client Component wrapper if motion causes issues in server component? No, motion is safe if directive is use client, but here we are in server component. 
                 Wait, framer-motion components must be used in client components. 
