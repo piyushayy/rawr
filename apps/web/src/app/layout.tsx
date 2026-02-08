@@ -57,6 +57,7 @@ export const metadata: Metadata = {
 };
 
 import { AnnouncementBar } from "@/components/shared/AnnouncementBar";
+import { CookieConsent } from "@/components/shared/CookieConsent";
 
 export default async function RootLayout({
   children,
@@ -68,6 +69,12 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  let clout = 0;
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('clout_score').eq('id', user.id).single();
+    if (profile) clout = profile.clout_score;
+  }
+
   return (
     <html lang="en">
       <body
@@ -77,13 +84,14 @@ export default async function RootLayout({
         <div className="flex flex-col min-h-screen">
           <AnnouncementBar />
           <Ticker />
-          <Navbar user={user} />
+          <Navbar user={user} clout={clout} />
           <CartDrawer />
           <main className="flex-1">
             {children}
           </main>
           <Footer />
           <Toaster />
+          <CookieConsent />
         </div>
       </body>
     </html>

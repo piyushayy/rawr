@@ -25,6 +25,8 @@ export async function createProduct(formData: FormData) {
             waist: formData.get('measure_waist'),
             inseam: formData.get('measure_inseam'),
         },
+        video_url: formData.get('video_url') as string || null,
+        stock_quantity: Number(formData.get('stock_quantity') || 0),
         sold_out: false,
         release_date: formData.get('release_date') ? new Date(formData.get('release_date') as string).toISOString() : null,
     }
@@ -60,6 +62,8 @@ export async function updateProduct(id: string, formData: FormData) {
             waist: formData.get('measure_waist'),
             inseam: formData.get('measure_inseam'),
         },
+        video_url: formData.get('video_url') as string || null,
+        stock_quantity: Number(formData.get('stock_quantity') || 0),
         sold_out: formData.get('sold_out') === 'on',
         release_date: formData.get('release_date') ? new Date(formData.get('release_date') as string).toISOString() : null,
     }

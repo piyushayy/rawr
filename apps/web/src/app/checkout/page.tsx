@@ -2,31 +2,73 @@
 
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, Lock, CreditCard, Banknote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { createOrder } from "./actions";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { getTier, TIERS } from "@/utils/tiers";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { Price } from "@/components/shared/Price";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { StripeWrapper } from "./StripeCheckout";
+import Script from "next/script";
+
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
 
 export default function CheckoutPage() {
     const { items, clearCart } = useCartStore();
-    const total = items.reduce((acc, item) => acc + item.price, 0);
-    const [isProcessing, setIsProcessing] = useState(false);
     const router = useRouter();
-    const [shippingCost, setShippingCost] = useState<number | 'FREE'>(15);
+    const [shippingCost, setShippingCost] = useState<number | 'FREE'>(1500); // Default INR
     const [clout, setClout] = useState(0);
+    const [country, setCountry] = useState('IN'); // Default India for now
+    const { currency } = useCurrencyStore();
 
-    const [country, setCountry] = useState('US');
+    // State
+    const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'razorpay' | null>(null);
+    const [clientSecret, setClientSecret] = useState("");
+    const [orderId, setOrderId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const recoverCart = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const recoveryId = params.get('recovery');
+            if (recoveryId && items.length === 0) {
+                const supabase = createClient();
+                const { data: order } = await supabase.from('orders').select('order_items(*, products(title, images, size))').eq('id', recoveryId).single();
+
+                if (order && order.order_items) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const restoredItems = order.order_items.map((oi: any) => ({
+                        id: oi.product_id,
+                        variant_id: oi.variant_id,
+                        title: oi.products?.title,
+                        price: oi.price,
+                        image: oi.products?.images?.[0] || '',
+                        size: oi.products?.size || 'M',
+                        quantity: oi.quantity
+                    }));
+
+                    // Direct store update (hacky but works)
+                    useCartStore.setState({ items: restoredItems, isOpen: true });
+                    toast.success("Cart restored from previous session.");
+                }
+            }
+        };
+        recoverCart();
+    }, [items.length]);
+
+    const total = items.reduce((acc, item) => item.price * (item.quantity || 1) + acc, 0);
 
     useEffect(() => {
         const fetchProfile = async () => {
+            // ... (Profile Fetch Logic)
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
@@ -38,18 +80,21 @@ export default function CheckoutPage() {
     }, []);
 
     useEffect(() => {
+        // ... (Shipping Logic)
         const tier = getTier(clout);
         const isMember = tier.minClout >= TIERS.MEMBER.minClout;
 
-        if (country !== 'US') {
-            setShippingCost(30); // International Flat Rate
+        if (country !== 'IN') {
+            // International
+            setShippingCost(3000);
             return;
         }
 
-        if (total >= 150 || isMember) {
+        // Domestic Logic
+        if (total >= 15000 || isMember) { // 15000 INR Threshold
             setShippingCost('FREE');
         } else {
-            setShippingCost(15);
+            setShippingCost(1500);
         }
     }, [total, clout, country]);
 
@@ -66,34 +111,86 @@ export default function CheckoutPage() {
         );
     }
 
-    const [clientSecret, setClientSecret] = useState("");
-    const { currency } = useCurrencyStore();
-    const [orderId, setOrderId] = useState<string | null>(null);
+    const handleRazorpayPayment = async () => {
+        setIsLoading(true);
+        try {
+            const { createRazorpayOrder, verifyRazorpayPayment } = await import("./razorpay-actions");
+            const data = await createRazorpayOrder(items);
 
-    useEffect(() => {
-        // Create PaymentIntent (and reserve stock) as soon as the page loads
-        if (items.length > 0 && !clientSecret) {
-            // Check !clientSecret to avoid creating duplicate orders on re-renders,
-            // though strict mode might still trigger it. Better to refactor to a button click "Proceed to Payment" if strictly optimizing, 
-            // but for this UX we want it ready.
-            import("./stripe-actions").then(({ createPaymentIntent }) => {
-                createPaymentIntent(items, currency.toLowerCase(), {
-                    source: "web_checkout"
-                }).then((data) => {
-                    if (data.error) {
-                        toast.error(data.error);
-                        // Optional: router.push('/shop') if out of stock
-                    } else if (data.clientSecret && data.orderId) {
-                        setClientSecret(data.clientSecret);
-                        setOrderId(data.orderId);
+            if (data.error || !data.razorpayOrderId) {
+                toast.error(data.error || "Payment Init Failed");
+                setIsLoading(false);
+                return;
+            }
+
+            const options = {
+                key: data.key,
+                amount: data.amount,
+                currency: data.currency,
+                name: "RAWR Store",
+                description: "Cop the Drop",
+                order_id: data.razorpayOrderId,
+                handler: async function (response: any) {
+                    setIsLoading(true);
+                    const verification = await verifyRazorpayPayment(
+                        response.razorpay_order_id,
+                        response.razorpay_payment_id,
+                        response.razorpay_signature,
+                        data.dbOrderId
+                    );
+
+                    if (verification.success) {
+                        clearCart();
+                        toast.success("PAYMENT SUCCESSFUL");
+                        router.push(`/checkout/success?orderId=${data.dbOrderId}`);
+                    } else {
+                        toast.error("Payment Verification Failed");
+                        setIsLoading(false);
                     }
-                });
+                },
+                prefill: {
+                    name: "RAWR User", // Fetch from profile dynamically if possible
+                    email: "user@example.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#000000"
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response: any) {
+                toast.error(response.error.description);
+                setIsLoading(false);
             });
+            rzp.open();
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Something went wrong");
+            setIsLoading(false);
         }
-    }, [items, currency, clientSecret]);
+    };
+
+    const handleStripeInit = async () => {
+        setIsLoading(true);
+        const { createPaymentIntent } = await import("./stripe-actions");
+        const data = await createPaymentIntent(items, currency.toLowerCase(), { source: "web" });
+
+        if (data.error) {
+            toast.error(data.error);
+            setIsLoading(false);
+        } else if (data.clientSecret && data.orderId) {
+            setClientSecret(data.clientSecret);
+            setOrderId(data.orderId);
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-rawr-white lg:grid lg:grid-cols-2">
+            <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+
             {/* Left: Summary */}
             <div className="p-8 lg:p-12 bg-gray-100 border-r-2 border-rawr-black block">
                 <div className="max-w-xl mx-auto">
@@ -106,12 +203,14 @@ export default function CheckoutPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-heading font-bold">{item.title}</h3>
-                                    <p className="text-sm text-gray-500">{item.size}</p>
-                                    <p className="font-bold mt-1"><Price amount={item.price} /></p>
+                                    <p className="text-sm text-gray-500">Size: {item.size}</p>
+                                    <p className="text-xs text-gray-400">Qty: {item.quantity || 1}</p>
+                                    <p className="font-bold mt-1"><Price amount={item.price * (item.quantity || 1)} /></p>
                                 </div>
                             </div>
                         ))}
                     </div>
+                    {/* ... (Totals Section) */}
                     <div className="border-t-2 border-rawr-black mt-8 pt-8 space-y-4">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
@@ -120,12 +219,9 @@ export default function CheckoutPage() {
                         <div className="flex justify-between">
                             <span>Shipping</span>
                             <span className={shippingCost === 'FREE' ? 'text-green-600 font-bold' : ''}>
-                                {shippingCost === 'FREE' ? 'FREE' : <Price amount={shippingCost} />}
+                                {shippingCost === 'FREE' ? 'FREE' : <Price amount={Number(shippingCost)} />}
                             </span>
                         </div>
-                        {shippingCost === 'FREE' && clout >= 500 && total < 150 && (
-                            <p className="text-xs text-green-600 text-right uppercase font-bold">Member Benefit</p>
-                        )}
                         <div className="flex justify-between font-bold text-xl">
                             <span>Total</span>
                             <span><Price amount={finalTotal} /></span>
@@ -134,32 +230,83 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            {/* Right: Form */}
+            {/* Right: Payments */}
             <div className="p-8 lg:p-12">
                 <div className="max-w-xl mx-auto">
                     <h1 className="text-4xl font-heading font-black uppercase mb-8">Secure Checkout</h1>
 
-                    {/* We are simplifying the form for this phase to focus on Payment Element */}
-                    <div className="space-y-8">
+                    {!paymentMethod ? (
                         <div className="space-y-4">
-                            <h3 className="font-bold uppercase border-b border-rawr-black pb-2">Shipping Details</h3>
-                            <div className="p-4 border-2 border-rawr-black bg-gray-50 text-sm text-gray-500">
-                                Shipping Address collection is skipped in this Stripe Demo.
-                                In a real app, this would be passed to the PaymentIntent.
+                            <h3 className="font-bold uppercase mb-4">Select Payment Method</h3>
+
+                            <div
+                                onClick={() => { setPaymentMethod('razorpay'); }}
+                                className="border-2 border-rawr-black p-6 cursor-pointer hover:bg-gray-50 transition-all flex items-center justify-between group"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <Banknote className="w-8 h-8" />
+                                    <div>
+                                        <p className="font-bold uppercase text-lg">Razorpay (India)</p>
+                                        <p className="text-sm text-gray-500">UPI, Credit/Debit Cards, Netbanking</p>
+                                    </div>
+                                </div>
+                                <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+
+                            <div
+                                onClick={() => {
+                                    setPaymentMethod('stripe');
+                                    handleStripeInit();
+                                }}
+                                className="border-2 border-rawr-black p-6 cursor-pointer hover:bg-gray-50 transition-all flex items-center justify-between group"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <CreditCard className="w-8 h-8" />
+                                    <div>
+                                        <p className="font-bold uppercase text-lg">International Card</p>
+                                        <p className="text-sm text-gray-500">Powered by Stripe</p>
+                                    </div>
+                                </div>
+                                <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+
+                            <div className="text-xs text-center text-gray-400 mt-8">
+                                Depending on your location, shipping costs may vary.
                             </div>
                         </div>
+                    ) : (
+                        <div className="space-y-6">
+                            <Button variant="ghost" onClick={() => setPaymentMethod(null)} className="mb-4 pl-0 hover:bg-transparent hover:underline">
+                                ← Change Method
+                            </Button>
 
-                        <div className="space-y-4">
-                            <h3 className="font-bold uppercase border-b border-rawr-black pb-2">Payment</h3>
-                            {clientSecret && orderId ? (
-                                <StripeWrapper amount={finalTotal} clientSecret={clientSecret} orderId={orderId} />
-                            ) : (
-                                <div className="p-8 text-center animate-pulse font-mono border-2 border-dashed border-gray-300">
-                                    INITIALIZING SECURE CHANNEL...
+                            {paymentMethod === 'razorpay' && (
+                                <div className="text-center py-8">
+                                    <p className="mb-6 font-bold text-xl">Order Total: <Price amount={finalTotal} /></p>
+                                    <Button
+                                        onClick={handleRazorpayPayment}
+                                        disabled={isLoading}
+                                        className="w-full h-16 text-xl bg-[#3399cc] hover:bg-[#2b88b5] text-white font-bold"
+                                    >
+                                        {isLoading ? "PROCESSING..." : "PAY WITH RAZORPAY"}
+                                    </Button>
+                                    <p className="text-xs text-gray-400 mt-4">Securely processed by Razorpay</p>
                                 </div>
                             )}
+
+                            {paymentMethod === 'stripe' && (
+                                <>
+                                    {clientSecret && orderId ? (
+                                        <StripeWrapper amount={finalTotal} clientSecret={clientSecret} orderId={orderId} />
+                                    ) : (
+                                        <div className="p-8 text-center animate-pulse border-2 border-dashed border-gray-300">
+                                            Creating Secure Session...
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

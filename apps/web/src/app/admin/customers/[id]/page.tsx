@@ -132,6 +132,42 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     )}
                 </div>
             </div>
+
+            {/* Support Tickets Section */}
+            <div className="lg:col-span-2 space-y-6 pt-8 border-t border-gray-200">
+                <h3 className="font-heading font-black uppercase text-2xl">Support Tickets</h3>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {profile.support_tickets && profile.support_tickets.length > 0 ? (
+                    <div className="space-y-4">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {profile.support_tickets.map((ticket: any) => (
+                            <div key={ticket.id} className="bg-white border border-gray-200 p-4 rounded hover:shadow-sm flex justify-between items-center">
+                                <div>
+                                    <p className="font-bold text-sm uppercase mb-1">{ticket.subject}</p>
+                                    <p className="text-xs text-gray-500">
+                                        Created: {new Date(ticket.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p className="text-sm mt-2 text-gray-700 max-w-md truncate">{ticket.message}</p>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`text-xs px-2 py-1 rounded uppercase font-bold inline-block mb-2
+                                            ${ticket.status === 'open' ? 'bg-green-100 text-green-800' :
+                                            ticket.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-gray-100 text-gray-800'}`
+                                    }>
+                                        {ticket.status}
+                                    </span>
+                                    <div className="text-xs text-gray-400">ID: {ticket.id.slice(0, 6)}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="p-8 bg-gray-50 border border-gray-200 text-center text-gray-500">
+                        No support tickets filed.
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

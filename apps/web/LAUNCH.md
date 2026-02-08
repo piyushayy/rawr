@@ -8,16 +8,16 @@
 - [ ] **Admin User**: Set up at least one admin user (email `piyus...` or set in DB).
 
 ## Feature Verification
-- [ ] **Auth**: Login (Email/Google) and Signup work.
-- [ ] **Shop**: Products load, search works, sorting works.
-- [ ] **Cart**: Add/Remove items, update quantity.
-- [ ] **Checkout**: Order creation, address selection, "payment" demo.
-- [ ] **Profile**: addresses, wishlists, orders, gallery uploads.
-- [ ] **Referrals**: Referral code generation and attribution.
-- [ ] **Drops**: Countdown timer and restricted access for future release dates.
-- [ ] **Content**: Blog (Manifesto) and Lookbook loading.
+- [x] **Auth**: Login (Email/Google) and Signup work.
+- [x] **Shop**: Products load, search works, sorting works.
+- [x] **Cart**: Add/Remove items, update quantity.
+- [x] **Checkout**: Order creation, address selection, "payment" demo.
+- [x] **Profile**: addresses, wishlists, orders, gallery uploads.
+- [x] **Referrals**: Referral code generation and attribution.
+- [x] **Drops**: Countdown timer and restricted access for future release dates.
+- [x] **Content**: Blog (Manifesto) and Lookbook loading.
 
 ## Post-Launch
-- [ ] Monitor **Vercel Logs** for errors.
-- [ ] Check **Supabase Dashboard** for database load.
-- [ ] Watch **The Pulse** (Global Feed) for user activity.
+- [x] Monitor **Vercel Logs** for errors.
+- [x] Check **Supabase Dashboard** for database load.
+- [x] Watch **The Pulse** (Global Feed) for user activity.

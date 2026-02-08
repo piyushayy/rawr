@@ -37,10 +37,11 @@ const Countdown = ({ targetDate }: { targetDate: Date }) => {
     );
 };
 
-export default function DropsPage() {
-    // Mock date: 3 days from now
-    const nextDropDate = new Date();
-    nextDropDate.setDate(nextDropDate.getDate() + 3);
+import { getActiveDrop } from "@/app/admin/drops/actions";
+
+export default async function DropsPage() {
+    const drop = await getActiveDrop();
+    const nextDropDate = drop ? new Date(drop.drop_date) : new Date(Date.now() + 86400000 * 7); // Fallback 7 days
 
     return (
         <div className="min-h-screen bg-rawr-white flex flex-col items-center justify-center p-4 text-center">

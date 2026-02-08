@@ -17,7 +17,7 @@ export default async function CustomerListPage({ searchParams }: { searchParams:
     // We assume layout checks role, but extra safety:
     // We will just proceed, catching errors if RLS fails.
 
-    // Using the View: customer_metrics
+    // Use the optimized SQL view for CRM
     let dbQuery = supabase
         .from('customer_metrics')
         .select('*');
@@ -44,7 +44,8 @@ export default async function CustomerListPage({ searchParams }: { searchParams:
             break;
     }
 
-    const { data: customers, error } = await dbQuery.limit(50); // Pagination limit
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: customers, error } = await dbQuery.limit(50);
 
     if (error) {
         console.error("CRM Error:", error);

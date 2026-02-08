@@ -5,19 +5,42 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { deleteProduct } from "./actions";
 
-export default async function AdminProductsPage() {
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+
+export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+    const params = await searchParams;
+    const queryTerm = params.q || "";
     const supabase = await createClient();
-    const { data: products } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+
+    let query = supabase.from("products").select("*").order("created_at", { ascending: false });
+
+    if (queryTerm) {
+        query = query.ilike("title", `%${queryTerm}%`);
+    }
+
+    const { data: products } = await query;
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-3xl font-heading font-black uppercase">Products</h2>
-                <Link href="/admin/products/new">
-                    <Button className="bg-rawr-black text-white hover:bg-gray-800 gap-2">
-                        <Plus className="w-4 h-4" /> Add Product
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-4">
+                    <form className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                            name="q"
+                            placeholder="SEARCH SKU/NAME..."
+                            className="pl-10 w-64 bg-white"
+                            defaultValue={queryTerm}
+                        />
+                    </form>
+                    <Link href="/admin/products/new">
+                        <Button className="bg-rawr-black text-white hover:bg-gray-800 gap-2">
+                            <Plus className="w-4 h-4" /> Add Product
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <div className="bg-white border text-left border-gray-200 rounded-lg overflow-hidden">
@@ -42,7 +65,7 @@ export default async function AdminProductsPage() {
                                     </div>
                                 </td>
                                 <td className="p-4 font-bold">{product.title}</td>
-                                <td className="p-4">${product.price}</td>
+                                <td className="p-4">₹{product.price}</td>
                                 <td className="p-4">
                                     {product.sold_out ? (
                                         <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-bold uppercase">Sold Out</span>
@@ -69,6 +92,6 @@ export default async function AdminProductsPage() {
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div >
     );
 }

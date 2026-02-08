@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RAWR Streamware - Premium E-Commerce Store
 
-## Getting Started
+A luxury, high-performance e-commerce platform built for exclusivity and aesthetics.
 
-First, run the development server:
+## Key Features (v2 Upgrade)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 🛒 Advanced Shopping
+- **Product Variants**: Full support for Sizes (XS-XXL) with individual stock tracking.
+- **Dynamic Cart**: Persists across sessions, handles quantities and variant selection.
+- **Multi-Gateway Checkout**: Seamless integration of **Razorpay (India)** and **Stripe (International)** based on user location/preference.
+
+### 👑 CRM & Admin Dashboard (`/admin`)
+- **Customer Profiles**: Track Lifetime Value (LTV), Order History, and Clout Score.
+- **Internal Notes**: Add private admin notes for VIP customers.
+- **Support Tickets**: Manage customer inquiries directly from their profile.
+- **Order Fulfillment**: Mark orders as Shipped with Tracking Numbers.
+
+### 🤖 Marketing Automation
+- **Transactional Emails**: Automated Order Confirmation and Shipping Updates (via Resend).
+- **Abandoned Cart Recovery**: Automated hourly cron job to recover lost sales.
+
+---
+
+## Deployment & Setup
+
+### 1. Environment Variables
+Add these to your Vercel Project Settings:
+
+```env
+# Database
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Payments (Razorpay - India)
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+
+# Payments (Stripe - Global)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+
+# Email Automation
+RESEND_API_KEY=re_...
+
+# Security & Cron
+CRON_SECRET=generate_random_secure_string
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Database Migrations
+Run the SQL files in `supabase/migrations/` in order using the Supabase SQL Editor:
+1. `20260207_core_upgrade.sql` (Tables & Schemas)
+2. `20260207_data_migration.sql` (Migrate existing products)
+3. `20260207_rpc_functions.sql` (Stock Logic)
+4. `20260208_admin_policies.sql` (RLS Security & Marketing)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Vercel Cron Job
+The project includes a `vercel.json` to schedule the Abandoned Cart Recovery job every hour.
+- Ensure `CRON_SECRET` is set in Vercel Environment Variables.
+- Vercel handles the rest automatically.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Admin Access
+To grant Admin access to a user:
+1. Go to Supabase Table Editor -> `profiles`.
+2. Find the user row.
+3. Change the `role` column from `customer` to `admin`.
+4. The user can now access `/admin`.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+- **Framework**: Next.js 14 (App Router)
+- **Database**: Supabase (PostgreSQL)
+- **Styling**: Tailwind CSS + Framer Motion
+- **Payments**: Razorpay + Stripe
+- **Email**: Resend

@@ -11,20 +11,30 @@ import { createClient } from "@/utils/supabase/client";
 import { CountdownTimer } from "@/components/shared/CountdownTimer";
 import { Price } from "@/components/shared/Price";
 
+import { EstimatedDelivery } from "@/components/shared/EstimatedDelivery";
+import { TIERS } from "@/utils/tiers";
 import { ProductGallery } from "./ProductGallery";
 import { SizeGuide } from "./SizeGuide";
 
-export const ProductClient = ({ product: initialProduct, children }: { product: Product, children?: React.ReactNode }) => {
-    // ... (keep existing state)
+export const ProductClient = ({ product: initialProduct, children, clout = 0 }: { product: Product, children?: React.ReactNode, clout?: number }) => {
+    const deliveryDays = clout >= TIERS.ELITE.minClout ? 2 : clout >= TIERS.MEMBER.minClout ? 3 : 5;
+
+    // State
     const { addItem } = useCartStore();
     const [viewerCount, setViewerCount] = useState(0);
     const [isSoldOut, setIsSoldOut] = useState(initialProduct.soldOut);
-    const [hasDropped, setHasDropped] = useState(
-        initialProduct.release_date
-            ? new Date(initialProduct.release_date) <= new Date()
-            : true
-    );
+    const [hasDropped, setHasDropped] = useState(true); // Timer removed per user request
     const product = { ...initialProduct, soldOut: isSoldOut };
+
+    // Variant Logic
+    const [selectedSize, setSelectedSize] = useState<string>(
+        product.size || (product.variants?.[0]?.size ?? "")
+    );
+    const selectedVariant = product.variants?.find(v => v.size === selectedSize);
+
+    // Determine stock based on variant or fallback
+    const currentStock = selectedVariant ? selectedVariant.stock_quantity : product.stock_quantity;
+    const isVariantSoldOut = currentStock <= 0;
 
     useEffect(() => {
         const supabase = createClient();
@@ -104,14 +114,43 @@ export const ProductClient = ({ product: initialProduct, children }: { product: 
                                     {product.title}
                                 </h1>
                                 <div className="flex justify-between items-center border-b-2 border-rawr-black pb-4">
-                                    <p className="text-3xl font-bold"><Price amount={product.price} /></p>
+                                    <p className="text-3xl font-bold"><Price amount={selectedVariant?.price_override || product.price} /></p>
                                     <div className="flex items-center gap-4">
                                         <SizeGuide />
-                                        <div className={`px-3 py-1 font-bold uppercase ${product.soldOut ? 'bg-red-500 text-white' : 'bg-rawr-black text-rawr-white'}`}>
-                                            {product.soldOut ? 'SOLD OUT' : `Size: ${product.size}`}
-                                        </div>
+                                        {/* Size Selector */}
+                                        {product.variants && product.variants.length > 0 ? (
+                                            <div className="flex gap-2">
+                                                {product.variants.sort((a, b) => {
+                                                    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+                                                    const aIdx = sizes.indexOf(a.size);
+                                                    const bIdx = sizes.indexOf(b.size);
+                                                    return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+                                                }).map((variant) => (
+                                                    <button
+                                                        key={variant.id}
+                                                        onClick={() => setSelectedSize(variant.size)}
+                                                        disabled={variant.stock_quantity <= 0}
+                                                        className={`px-3 py-1 font-bold uppercase border border-rawr-black transition-all
+                                                            ${selectedSize === variant.size ? 'bg-rawr-black text-white' : 'bg-white text-black hover:bg-gray-100'}
+                                                            ${variant.stock_quantity <= 0 ? 'opacity-50 cursor-not-allowed line-through' : ''}
+                                                        `}
+                                                    >
+                                                        {variant.size}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className={`px-3 py-1 font-bold uppercase ${product.soldOut ? 'bg-red-500 text-white' : 'bg-rawr-black text-rawr-white'}`}>
+                                                {product.soldOut ? 'SOLD OUT' : `Size: ${product.size}`}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
+                                {!isVariantSoldOut && currentStock > 0 && (
+                                    <p className="font-bold text-sm text-gray-500 mt-2">
+                                        HURRY! ONLY <span className="text-rawr-red">{currentStock}</span> LEFT IN STOCK
+                                    </p>
+                                )}
                             </div>
 
                             {/* Viewer Count Badge - High Priority */}
@@ -174,24 +213,43 @@ export const ProductClient = ({ product: initialProduct, children }: { product: 
                                     </div>
                                 ) : (
                                     <Button
-                                        disabled={product.soldOut}
+                                        disabled={isVariantSoldOut || product.soldOut}
                                         className="w-full h-16 text-xl tracking-widest shadow-[8px_8px_0px_0px_#050505] hover:shadow-[4px_4px_0px_0px_#050505] hover:translate-x-[4px] hover:translate-y-[4px] transition-all bg-rawr-red text-white hover:bg-red-600 border-rawr-black disabled:opacity-50 disabled:cursor-not-allowed"
-                                        onClick={() => {
+                                        onClick={async () => {
+                                            const supabase = createClient();
+                                            const { data: { user } } = await supabase.auth.getUser();
+
+                                            if (!user) {
+                                                toast.error("JOIN THE CULT FIRST", {
+                                                    description: "You must be logged in to cop rare items.",
+                                                    action: {
+                                                        label: "LOGIN",
+                                                        onClick: () => window.location.href = "/login",
+                                                    }
+                                                });
+                                                return;
+                                            }
+
                                             addItem({
                                                 id: product.id,
+                                                variant_id: selectedVariant?.id,
                                                 title: product.title,
-                                                price: product.price,
+                                                price: selectedVariant?.price_override || product.price,
                                                 image: product.images[0],
-                                                size: product.size
+                                                size: selectedSize,
+                                                quantity: 1
                                             });
                                             toast("ADDED TO CART", {
-                                                description: "Don't let it slip away.",
+                                                description: `Size ${selectedSize} secured. Don't let it slip away.`,
                                             });
                                         }}
                                     >
-                                        {product.soldOut ? 'SOLD OUT' : 'ADD TO CART'}
+                                        {isVariantSoldOut || product.soldOut ? 'SOLD OUT' : 'ADD TO CART'}
                                     </Button>
                                 )}
+                                <div className="mt-6">
+                                    <EstimatedDelivery days={deliveryDays} />
+                                </div>
                             </div>
                         </div>
                     </div>

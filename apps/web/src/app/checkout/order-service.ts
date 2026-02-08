@@ -2,47 +2,71 @@
 import { createClient } from '@/utils/supabase/server';
 import { CartItem } from '@/types';
 import { getTier, TIERS } from '@/utils/tiers';
-import { sendOrderConfirmation } from '@/utils/email';
 
 const SHIPPING_COST = 15;
-const FREE_SHIPPING_THRESHOLD = 150;
+const FREE_SHIPPING_THRESHOLD = 1500;
 
 export async function processOrder(items: CartItem[], userId: string) {
-    const supabase = await createClient(); // Await the proper server client
+    const supabase = await createClient();
 
-    // 1. Verify Prices
+    // 1. Verify Prices & Stock
     const productIds = items.map(item => item.id);
     const { data: dbProducts, error: productsError } = await supabase
         .from('products')
-        .select('id, price')
+        .select('id, price, product_variants(id, price_override, stock_quantity)')
         .in('id', productIds);
 
     if (productsError || !dbProducts) {
-        return { error: 'Failed to verify product prices.' };
+        return { error: 'Failed to verify product prices.', success: false };
     }
 
-    const priceMap = new Map(dbProducts.map(p => [p.id, Number(p.price)]));
+    const productMap = new Map(dbProducts.map(p => [p.id, p]));
 
-    // Calculate Total & Verify Items
     let calculatedTotal = 0;
     const verifiedItems = [];
 
     for (const item of items) {
-        const price = priceMap.get(item.id);
-        if (price !== undefined) {
-            calculatedTotal += price;
-            verifiedItems.push({
-                product_id: item.id,
-                price: price, // Use server price
-                quantity: 1
-            });
+        const product = productMap.get(item.id);
+
+        if (!product) {
+            return { error: `Product ${item.title} no longer exists.`, success: false };
         }
+
+        let price = Number(product.price);
+        let variantId = item.variant_id;
+
+        if (variantId) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const variants = (product as any).product_variants || [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const variant = variants.find((v: any) => v.id === variantId);
+
+            if (!variant) {
+                return { error: `Selected variant for ${item.title} is invalid.`, success: false };
+            }
+
+            if (variant.price_override) {
+                price = Number(variant.price_override);
+            }
+        }
+
+        // Use quantity from cart item, default to 1 if missing (legacy safety)
+        const quantity = item.quantity || 1;
+        calculatedTotal += price * quantity;
+
+        verifiedItems.push({
+            product_id: item.id,
+            variant_id: variantId,
+            price: price,
+            quantity: quantity,
+            title: item.title
+        });
     }
 
     // 2. Calculate Shipping
     const { data: profile } = await supabase
         .from('profiles')
-        .select('clout_score, email') // Get email here if possible or just clout
+        .select('clout_score, email')
         .eq('id', userId)
         .single();
 
@@ -59,28 +83,45 @@ export async function processOrder(items: CartItem[], userId: string) {
     const finalTotal = calculatedTotal + shippingCost;
 
     // 3. Inventory Check & Lock
-    const decrementedItems: { id: string, qty: number }[] = [];
+    const decrementedItems: { id: string, variant_id?: string, qty: number }[] = [];
 
     for (const item of verifiedItems) {
-        const { data: success, error } = await supabase.rpc('decrement_stock', { p_id: item.product_id, quantity: item.quantity });
+        let success = false;
+        let error = null;
+
+        if (item.variant_id) {
+            const { data, error: rpcError } = await supabase.rpc('decrement_variant_stock', { p_variant_id: item.variant_id, p_quantity: item.quantity });
+            success = !!data;
+            error = rpcError;
+        } else {
+            const { data, error: rpcError } = await supabase.rpc('decrement_stock', { p_id: item.product_id, quantity: item.quantity });
+            success = !!data;
+            error = rpcError;
+        }
 
         if (!success || error) {
             console.error(`Stock failure for ${item.product_id}`, error);
             // Rollback
             for (const prev of decrementedItems) {
-                await supabase.rpc('increment_stock', { p_id: prev.id, quantity: prev.qty });
+                if (prev.variant_id) {
+                    await supabase.rpc('increment_variant_stock', { p_variant_id: prev.variant_id, p_quantity: prev.qty });
+                } else {
+                    await supabase.rpc('increment_stock', { p_id: prev.id, quantity: prev.qty });
+                }
             }
-            return { error: `One or more items are out of stock. Please update your cart.` };
+            return { error: `Item ${item.title} is out of stock.`, success: false };
         }
-        decrementedItems.push({ id: item.product_id, qty: item.quantity });
+
+        decrementedItems.push({ id: item.product_id, variant_id: item.variant_id, qty: item.quantity });
     }
 
-    // 4. Create Order (Pending)
+    // 4. Create Order
     const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
             user_id: userId,
             status: 'pending',
+            payment_status: 'pending',
             total: finalTotal,
         })
         .select()
@@ -90,15 +131,22 @@ export async function processOrder(items: CartItem[], userId: string) {
         console.error('Order creation failed:', orderError);
         // Rollback Inventory
         for (const prev of decrementedItems) {
-            await supabase.rpc('increment_stock', { p_id: prev.id, quantity: prev.qty });
+            if (prev.variant_id) {
+                await supabase.rpc('increment_variant_stock', { p_variant_id: prev.variant_id, p_quantity: prev.qty });
+            } else {
+                await supabase.rpc('increment_stock', { p_id: prev.id, quantity: prev.qty });
+            }
         }
-        return { error: 'Failed to create order. Please try again.' };
+        return { error: 'Failed to create order.', success: false };
     }
 
     // 5. Create Order Items
     const orderItems = verifiedItems.map(item => ({
         order_id: order.id,
-        ...item
+        product_id: item.product_id,
+        variant_id: item.variant_id,
+        quantity: item.quantity,
+        price: item.price
     }));
 
     const { error: itemsError } = await supabase
@@ -107,9 +155,8 @@ export async function processOrder(items: CartItem[], userId: string) {
 
     if (itemsError) {
         console.error('Order items creation failed:', itemsError);
-        return { error: 'Failed to save items. Please contact support.' };
+        return { error: 'Failed to save items.', success: false };
     }
 
-    // Retrun success with order details
     return { success: true, orderId: order.id, total: finalTotal, email: profile?.email };
 }

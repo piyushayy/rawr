@@ -90,11 +90,19 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                             <h3 className="font-bold uppercase mb-4">Order Actions</h3>
                             <div className="flex gap-4">
                                 {order.status === 'paid' && (
-                                    <form action={updateOrderStatus.bind(null, order.id, 'shipped')}>
-                                        <Button className="w-full md:w-auto">
-                                            <Truck className="w-4 h-4 mr-2" /> Mark as Shipped
-                                        </Button>
-                                    </form>
+                                    <div className="w-full">
+                                        <form action={updateOrderStatus.bind(null, order.id, 'shipped')} className="flex flex-col md:flex-row gap-2 w-full">
+                                            <input
+                                                name="trackingNumber"
+                                                placeholder="Enter Tracking ID..."
+                                                className="flex-1 p-2 border border-gray-300 rounded text-sm bg-white"
+                                                required
+                                            />
+                                            <Button type="submit" className="bg-rawr-black text-white hover:bg-gray-800 whitespace-nowrap">
+                                                <Truck className="w-4 h-4 mr-2" /> Mark Shipped
+                                            </Button>
+                                        </form>
+                                    </div>
                                 )}
                                 {order.status === 'shipped' && (
                                     <form action={updateOrderStatus.bind(null, order.id, 'completed')}>
@@ -134,6 +142,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                     <p>{address.address}</p>
                                     <p>{address.city}, {address.state} {address.zip}</p>
                                     <p>{address.country}</p>
+                                    {order.tracking_number && (
+                                        <div className="mt-4 pt-4 border-t border-gray-100">
+                                            <p className="text-xs uppercase font-bold text-gray-400">Tracking Number</p>
+                                            <p className="font-mono text-lg font-bold text-rawr-black bg-yellow-100 inline-block px-2">{order.tracking_number}</p>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <p className="text-sm text-gray-400 italic">No address provided (Digital/Pickup?)</p>

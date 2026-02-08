@@ -15,14 +15,24 @@ const mapDatabaseToProduct = (row: any): Product => ({
     measurements: row.measurements || {},
     soldOut: row.sold_out,
     category: row.category,
-    release_date: row.release_date,
+    video_url: row.video_url,
+    stock_quantity: row.stock_quantity ?? 1,
+    // Map variants if they exist (joined via relation)
+    variants: row.product_variants ? row.product_variants.map((v: any) => ({
+        id: v.id,
+        product_id: v.product_id,
+        sku: v.sku,
+        size: v.size,
+        stock_quantity: v.stock_quantity,
+        price_override: v.price_override
+    })) : []
 });
 
 export const getProducts = async (): Promise<Product[]> => {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, product_variants(*)")
         .order("created_at", { ascending: false });
 
     if (error) {
@@ -37,7 +47,7 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, product_variants(*)")
         .eq("id", id)
         .single();
 
@@ -51,12 +61,10 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
 
 export const getLatestDrop = async (): Promise<Product[]> => {
     const supabase = await createClient();
-    // Assuming "Latest Drops" are products dropped recently or in the future
-    // For now, just return the most recent 4 items
     const { data, error } = await supabase
         .from("products")
-        .select("*")
-        .order("release_date", { ascending: false })
+        .select("*, product_variants(*)")
+        .order("created_at", { ascending: false })
         .limit(4);
 
     if (error) {
@@ -79,7 +87,7 @@ export interface SearchParams {
 
 export const searchProducts = async (params: SearchParams): Promise<Product[]> => {
     const supabase = await createClient();
-    let query = supabase.from("products").select("*");
+    let query = supabase.from("products").select("*, product_variants(*)");
 
     if (params.query) {
         query = query.ilike("title", `%${params.query}%`);
@@ -124,7 +132,7 @@ export const getRelatedProducts = async (currentProductId: string, category: str
 
     const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, product_variants(*)")
         .eq("category", category)
         .neq("id", currentProductId)
         .limit(4);

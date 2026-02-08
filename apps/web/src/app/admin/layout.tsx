@@ -24,12 +24,13 @@ export default async function AdminLayout({
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { label: "Products", href: "/admin/products", icon: Package },
         { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
+        { label: "Drops", href: "/admin/drops", icon: Camera }, // Icons can be adjusted
+        { label: "Reviews", href: "/admin/reviews", icon: MessageSquare },
+        { label: "Customers", href: "/admin/customers", icon: Users },
         { label: "Inbox", href: "/admin/inbox", icon: MessageSquare },
         { label: "Manifesto", href: "/admin/articles", icon: FileText },
         { label: "Lookbook", href: "/admin/lookbook", icon: Camera },
         { label: "Careers", href: "/admin/careers", icon: Briefcase },
-        { label: "Customers", href: "/admin/customers", icon: Users },
-        { label: "Settings", href: "/admin/settings", icon: Settings },
     ];
 
     return (

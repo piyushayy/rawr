@@ -1,9 +1,18 @@
+export interface ProductVariant {
+    id: string;
+    product_id: string;
+    sku: string;
+    size: string;
+    stock_quantity: number;
+    price_override?: number;
+}
+
 export interface Product {
     id: string;
     title: string;
     price: number;
     description: string;
-    size: string;
+    size: string; // Deprecated but kept for display
     condition: string;
     images: string[];
     details: string[];
@@ -15,16 +24,21 @@ export interface Product {
         inseam?: string;
     };
     soldOut: boolean;
-    category: 'tops' | 'bottoms' | 'outerwear' | 'accessories';
-    release_date: string | null;
+    category: 'dresses' | 'tops' | 'bottoms' | 'lingerie' | 'outerwear' | 'shoes' | 'accessories' | 'clothing' | 'plus';
+    stock_quantity: number; // Aggregate stock
+    release_date?: string | null;
+    video_url?: string;
+    variants?: ProductVariant[]; // New field
 }
 
 export interface CartItem {
-    id: string;
+    id: string; // Product ID
+    variant_id?: string; // New field
     title: string;
     price: number;
     image: string;
     size: string;
+    quantity: number; // Added quantity tracking
 }
 
 export interface Address {
@@ -39,5 +53,22 @@ export interface Address {
     postal_code: string;
     country: string;
     is_default: boolean;
+    created_at: string;
+}
+
+export interface Coupon {
+    id: string;
+    code: string;
+    discount_type: 'percentage' | 'fixed';
+    value: number;
+    min_order_value: number;
+}
+
+export interface SupportTicket {
+    id: string;
+    user_id: string;
+    subject: string;
+    message: string;
+    status: 'open' | 'in_progress' | 'resolved' | 'closed';
     created_at: string;
 }

@@ -10,7 +10,7 @@ import {
     AccordionTrigger
 } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox"; // We might need to create this if it doesn't exist, checking later.
+// import { Checkbox } from "@/components/ui/checkbox"; // Unused
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
@@ -80,8 +80,8 @@ export const ShopFilters = () => {
                                     key={cat}
                                     onClick={() => handleCategoryChange(cat)}
                                     className={`text-left text-sm font-bold uppercase py-1 px-2 transition-colors ${category === cat
-                                            ? "bg-rawr-black text-white"
-                                            : "hover:bg-gray-100 text-gray-600"
+                                        ? "bg-rawr-black text-white"
+                                        : "hover:bg-gray-100 text-gray-600"
                                         }`}
                                 >
                                     {cat}
@@ -126,8 +126,8 @@ export const ShopFilters = () => {
                                     key={size}
                                     onClick={() => handleSizeToggle(size)}
                                     className={`border-2 font-bold text-sm py-2 transition-all ${selectedSizes.includes(size)
-                                            ? "border-rawr-black bg-rawr-black text-white"
-                                            : "border-gray-200 hover:border-rawr-black"
+                                        ? "border-rawr-black bg-rawr-black text-white"
+                                        : "border-gray-200 hover:border-rawr-black"
                                         }`}
                                 >
                                     {size}

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, ArrowRight } from "lucide-react";
+import { X, Trash2, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -108,11 +108,16 @@ export const CartDrawer = () => {
                                         <ArrowRight className="w-6 h-6" />
                                     </Button>
                                 </Link>
+                                <div className="flex justify-center items-center gap-2 mt-4 text-gray-500">
+                                    <ShieldCheck className="w-4 h-4" />
+                                    <span className="text-[10px] font-bold uppercase">Encrypted & Secure</span>
+                                </div>
                             </div>
                         )}
-                    </motion.div>
-                </>
-            )}
-        </AnimatePresence>
+                </motion.div>
+        </>
+    )
+}
+        </AnimatePresence >
     );
 };

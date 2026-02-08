@@ -29,7 +29,7 @@ export default function ProductForm({ action, initialData }: { action: any, init
                 </div>
 
                 <div className="space-y-2">
-                    <label className="font-bold text-sm uppercase">Price ($)</label>
+                    <label className="font-bold text-sm uppercase">Price (₹)</label>
                     <input
                         name="price"
                         type="number"
@@ -71,11 +71,28 @@ export default function ProductForm({ action, initialData }: { action: any, init
                         defaultValue={initialData?.category || 'tops'}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
+                        <option value="dresses">Dresses</option>
                         <option value="tops">Tops</option>
                         <option value="bottoms">Bottoms</option>
+                        <option value="lingerie">Lingerie</option>
                         <option value="outerwear">Outerwear</option>
+                        <option value="shoes">Shoes</option>
                         <option value="accessories">Accessories</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="plus">Plus</option>
                     </select>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="font-bold text-sm uppercase">Stock Quantity</label>
+                    <input
+                        name="stock_quantity"
+                        type="number"
+                        min="0"
+                        required
+                        defaultValue={initialData?.stock_quantity ?? 1}
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
                 </div>
 
                 <div className="space-y-2 col-span-2">
@@ -97,6 +114,17 @@ export default function ProductForm({ action, initialData }: { action: any, init
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                     <p className="text-xs text-gray-500">For Phase 3 demo, paste direct image URLs.</p>
+                </div>
+
+                <div className="space-y-2 col-span-2">
+                    <label className="font-bold text-sm uppercase">Video URL (Optional)</label>
+                    <input
+                        name="video_url"
+                        placeholder="https://... (MP4 Link)"
+                        defaultValue={initialData?.video_url}
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                    <p className="text-xs text-gray-500">Direct link to MP4 background video.</p>
                 </div>
 
                 <div className="space-y-2 col-span-2">

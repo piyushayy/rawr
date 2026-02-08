@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Package, MapPin, Heart, Trophy } from "lucide-react";
+import { Package, MapPin, Heart, Trophy, Settings } from "lucide-react";
 import Image from "next/image";
 import { TierBadge } from "@/components/shared/TierBadge";
 import { getNextTier } from "@/utils/tiers";
@@ -107,6 +107,16 @@ export default async function AccountPage() {
                         <p className="text-sm font-bold text-gray-500 group-hover:text-gray-400">Your curated wishlist.</p>
                     </div>
                 </Link>
+
+                <Link href="/settings" className="group">
+                    <div className="border-2 border-rawr-black p-6 hover:bg-black hover:text-white transition-colors h-full">
+                        <div className="w-8 h-8 mb-4 group-hover:text-rawr-red transition-colors flex items-center justify-center">
+                            <span className="text-2xl">⚙️</span> {/* Using emoji or lucide icon if available, let's use Settings icon */}
+                        </div>
+                        <h3 className="text-xl font-heading font-black uppercase mb-2">Settings</h3>
+                        <p className="text-sm font-bold text-gray-500 group-hover:text-gray-400">Edit profile & manage account.</p>
+                    </div>
+                </Link>
             </div>
 
             <div className="bg-rawr-black text-white p-8 border-2 border-rawr-black relative overflow-hidden group">
@@ -129,6 +139,6 @@ export default async function AccountPage() {
                 <p className="text-sm text-gray-600 mb-4">Issues with your order or questions about the cult?</p>
                 <Button variant="outline">Contact Support</Button>
             </div>
-        </div>
+        </div >
     );
 }

@@ -12,6 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, ShoppingBag, Users, TrendingUp } from "lucide-react";
 import { AnalyticsData } from './analytics-actions';
+import { OverviewGraph } from "./OverviewGraph";
 
 // Custom Tooltip
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -81,27 +82,8 @@ export default function AdminDashboard({ data }: { data: AnalyticsData }) {
                         <CardTitle className="font-heading font-black uppercase">Revenue Overview</CardTitle>
                     </CardHeader>
                     <CardContent className="pl-2">
-                        <div className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={data.recentSales}>
-                                    <XAxis
-                                        dataKey="date"
-                                        stroke="#000"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="#000"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(value) => `$${value}`}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.1)' }} />
-                                    <Bar dataKey="amount" fill="#050505" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="h-[350px]">
+                            <OverviewGraph data={data.recentSales} />
                         </div>
                     </CardContent>
                 </Card>

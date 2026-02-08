@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { toast } from "sonner";
 import { Product } from "@/types";
-import { Heart } from "lucide-react";
+import { Heart, Lock } from "lucide-react";
 import { toggleWishlist } from "@/app/account/wishlist/actions";
 import { Price } from "./Price";
+import { createClient } from "@/utils/supabase/client";
 
 interface ProductProps extends Product { }
 
-export const ProductCard = ({ id, title, price, images, size, soldOut, release_date }: ProductProps) => {
+export const ProductCard = (props: ProductProps) => {
+    const { id, title, price, images, size, soldOut, release_date } = props;
     const { addItem } = useCartStore();
     const isDroppingSoon = release_date ? new Date(release_date) > new Date() : false;
     return (
@@ -24,6 +26,19 @@ export const ProductCard = ({ id, title, price, images, size, soldOut, release_d
                     fill
                     className={`object-cover transition-transform duration-500 group-hover:scale-110 ${soldOut ? 'grayscale contrast-125' : ''}`}
                 />
+
+                {props.video_url && (
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                        <video
+                            src={props.video_url}
+                            muted
+                            loop
+                            autoPlay
+                            playsInline
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                )}
 
                 <div className="absolute top-2 right-2 z-20">
                     <form action={async () => {
@@ -64,10 +79,25 @@ export const ProductCard = ({ id, title, price, images, size, soldOut, release_d
                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                         <Button
                             className="w-full shadow-none rounded-none border-t-2 border-x-0 border-b-0"
-                            onClick={(e) => {
+                            onClick={async (e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                addItem({ id, title, price, image: images[0], size });
+
+                                const supabase = createClient();
+                                const { data: { user } } = await supabase.auth.getUser();
+
+                                if (!user) {
+                                    toast.error("JOIN THE CULT FIRST", {
+                                        description: "You must be logged in to cop rare items.",
+                                        action: {
+                                            label: "LOGIN",
+                                            onClick: () => window.location.href = "/login",
+                                        }
+                                    });
+                                    return;
+                                }
+
+                                addItem({ id, title, price, image: images[0], size, quantity: 1 });
                                 toast("ADDED TO STASH", {
                                     description: `${title} - ${size || 'OS'}`,
                                 });
@@ -92,9 +122,15 @@ export const ProductCard = ({ id, title, price, images, size, soldOut, release_d
                     </h3>
                     <p className="font-body text-sm text-gray-500 mt-1">VINTAGE PRE-OWNED</p>
                 </div>
-                <span className="font-heading font-bold text-lg">
-                    <Price amount={price} />
-                </span>
+                <div className="flex flex-col items-end">
+                    <span className="font-heading font-bold text-lg">
+                        <Price amount={price} />
+                    </span>
+                    <span className="font-mono text-xs text-rawr-red font-bold flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity" title="Elite Members Price">
+                        <Lock className="w-3 h-3" />
+                        <Price amount={price * 0.9} /> ELITE
+                    </span>
+                </div>
             </div>
         </Link>
     );

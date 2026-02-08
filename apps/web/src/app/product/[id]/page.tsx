@@ -28,9 +28,19 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
 }
 
+import { createClient } from "@/utils/supabase/server";
+
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const product = await getProductById(id);
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    let clout = 0;
+    if (user) {
+        const { data: profile } = await supabase.from('profiles').select('clout_score').eq('id', user.id).single();
+        if (profile) clout = profile.clout_score;
+    }
 
     if (!product) {
         notFound();
@@ -52,7 +62,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     };
 
     return (
-        <ProductClient product={product}>
+        <ProductClient product={product} clout={clout}>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
