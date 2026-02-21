@@ -40,7 +40,8 @@ export default function LoginPage() {
 
     const handleGoogleLogin = async () => {
         setLoading(true);
-        const result = await loginWithGoogle();
+        const redirectUrl = searchParams.get('redirect') || '/account';
+        const result = await loginWithGoogle(redirectUrl);
         if (result?.error) {
             toast.error(result.error);
             setLoading(false);
@@ -75,6 +76,7 @@ export default function LoginPage() {
                 </div>
 
                 <form action={handleAction} className="flex flex-col gap-6">
+                    <input type="hidden" name="redirectUrl" value={searchParams.get('redirect') || '/account'} />
                     <AnimatePresence mode="wait">
                         {mode === 'signup' && (
                             <motion.div

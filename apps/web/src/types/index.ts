@@ -72,3 +72,77 @@ export interface SupportTicket {
     status: 'open' | 'in_progress' | 'resolved' | 'closed';
     created_at: string;
 }
+
+// --- CRM Phase 1 Types ---
+
+export interface Discount {
+    id: string;
+    code: string;
+    type: 'percentage' | 'fixed';
+    value: number;
+    usage_limit: number | null;
+    used_count: number;
+    expires_at: string | null;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Return {
+    id: string;
+    order_id: string;
+    user_id: string;
+    status: 'pending' | 'approved' | 'rejected' | 'refunded';
+    reason: string;
+    refund_amount: number | null;
+    admin_notes: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface InventoryLog {
+    id: string;
+    product_id: string;
+    admin_id: string | null;
+    change_amount: number;
+    reason: string;
+    created_at: string;
+}
+
+export interface AbandonedCart {
+    id: string;
+    user_id: string | null;
+    email: string | null;
+    cart_state: any; // Using any or specific interface for cart state JSONB
+    total_value: number;
+    recovered: boolean;
+    recovery_email_sent: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+// --- SaaS CRM Types ---
+
+export interface CrmCustomer {
+    id: string; // references auth.users(id)
+    email: string;
+    phone?: string;
+    lifetime_value: number;
+    total_orders: number;
+    loyalty_tier?: string;
+    status: 'active' | 'inactive' | 'banned';
+    tags: string[]; // JSONB array of strings
+    created_at: string;
+    last_active_at: string;
+}
+
+export interface CustomerEvent {
+    id: string;
+    customer_id?: string;
+    event_type: string;
+    event_data: any; // Context JSONB
+    source?: string;
+    url?: string;
+    session_id?: string;
+    created_at: string;
+}

@@ -6,7 +6,14 @@ import { getTier, TIERS } from '@/utils/tiers';
 const SHIPPING_COST = 15;
 const FREE_SHIPPING_THRESHOLD = 1500;
 
-export async function processOrder(items: CartItem[], userId: string) {
+export interface CheckoutUser {
+    id?: string;
+    email?: string;
+    address?: any;
+    name?: string;
+}
+
+export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
     const supabase = await createClient();
 
     // 1. Verify Prices & Stock
@@ -64,13 +71,20 @@ export async function processOrder(items: CartItem[], userId: string) {
     }
 
     // 2. Calculate Shipping
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('clout_score, email')
-        .eq('id', userId)
-        .single();
+    let clout = 0;
+    let email = user.email;
 
-    const clout = profile?.clout_score || 0;
+    if (user.id) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('clout_score, email')
+            .eq('id', user.id)
+            .single();
+
+        clout = profile?.clout_score || 0;
+        if (!email) email = profile?.email;
+    }
+
     const tier = getTier(clout);
 
     let shippingCost = SHIPPING_COST;
@@ -119,10 +133,11 @@ export async function processOrder(items: CartItem[], userId: string) {
     const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-            user_id: userId,
+            user_id: user.id || null, // Allow null for guests
             status: 'pending',
             payment_status: 'pending',
             total: finalTotal,
+            shipping_address: user.address || null // Assuming the table schema we saw
         })
         .select()
         .single();
@@ -158,5 +173,5 @@ export async function processOrder(items: CartItem[], userId: string) {
         return { error: 'Failed to save items.', success: false };
     }
 
-    return { success: true, orderId: order.id, total: finalTotal, email: profile?.email };
+    return { success: true, orderId: order.id, total: finalTotal, email: email };
 }

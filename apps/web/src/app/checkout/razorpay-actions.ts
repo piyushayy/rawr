@@ -4,6 +4,8 @@ import Razorpay from 'razorpay';
 import { createClient } from '@/utils/supabase/server';
 import { processOrder } from './order-service';
 import { CartItem } from '@/types';
+import { rateLimit } from '@/utils/rate-limiter';
+import { headers } from 'next/headers';
 
 // Initialize Razorpay
 // Note: User must key in .env RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET
@@ -12,16 +14,26 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
-export async function createRazorpayOrder(items: CartItem[]) {
+export async function createRazorpayOrder(items: CartItem[], userDetails?: { id?: string, email?: string, address?: any }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { error: "User not authenticated" };
+    const checkoutUser = {
+        id: user?.id || userDetails?.id,
+        email: user?.email || userDetails?.email,
+        address: userDetails?.address
+    };
+
+    const headersList = await headers();
+    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
+    const limitKey = `checkout_${ip}_${checkoutUser.email || 'guest'}`;
+
+    if (!rateLimit(limitKey, 5, 60 * 1000)) {
+        return { error: "Too many checkout attempts. Take a breath and wait a minute." };
     }
 
     // 1. Process Order (Verify Stock, Prices, Create DB Order)
-    const orderResult = await processOrder(items, user.id);
+    const orderResult = await processOrder(items, checkoutUser);
 
     if (orderResult.error || !orderResult.success) {
         return { error: orderResult.error };
@@ -34,7 +46,7 @@ export async function createRazorpayOrder(items: CartItem[]) {
             currency: "INR",
             receipt: orderResult.orderId,
             notes: {
-                userId: user.id,
+                userId: checkoutUser.id || 'guest',
                 orderId: orderResult.orderId // internal DB ID
             }
         };

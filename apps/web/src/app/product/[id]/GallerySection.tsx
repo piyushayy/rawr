@@ -34,6 +34,7 @@ export default async function GallerySection({ productId }: { productId: string 
                                 src={post.image_url}
                                 alt={post.caption || "Community Post"}
                                 fill
+                                sizes="(max-width: 768px) 50vw, 25vw"
                                 className="object-cover transition-transform group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 text-white">

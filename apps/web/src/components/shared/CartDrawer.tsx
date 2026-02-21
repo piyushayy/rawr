@@ -53,7 +53,7 @@ export const CartDrawer = () => {
                                 <p className="text-xs font-bold uppercase mb-2 text-center">
                                     {total >= FREE_SHIPPING_THRESHOLD
                                         ? "You've unlocked Free Shipping!"
-                                        : `Add $${FREE_SHIPPING_THRESHOLD - total} for Free Shipping`
+                                        : <span className="flex items-center justify-center gap-1">Add <Price amount={FREE_SHIPPING_THRESHOLD - total} /> for Free Shipping</span>
                                     }
                                 </p>
                                 <div className="h-2 bg-gray-300 rounded-full overflow-hidden">
@@ -114,10 +114,10 @@ export const CartDrawer = () => {
                                 </div>
                             </div>
                         )}
-                </motion.div>
-        </>
-    )
-}
+                    </motion.div>
+                </>
+            )
+            }
         </AnimatePresence >
     );
 };

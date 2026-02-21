@@ -57,6 +57,16 @@ export default function ReviewForm({ productId }: { productId: string }) {
                 className="w-full p-4 border-2 border-rawr-black bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[120px] font-bold"
             />
 
+            <div className="mt-4">
+                <label className="block font-bold text-sm mb-2 uppercase text-gray-600">Add a Photo (Optional)</label>
+                <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    className="w-full border-2 border-dashed border-gray-300 p-4 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-rawr-black file:text-white file:font-bold file:uppercase cursor-pointer"
+                />
+            </div>
+
             <Button type="submit" disabled={loading} className="w-full mt-4 h-12">
                 {loading ? "POSTING..." : "SUBMIT REVIEW"}
             </Button>

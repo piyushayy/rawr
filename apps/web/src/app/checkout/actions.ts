@@ -28,7 +28,8 @@ export async function createOrder(formData: FormData) {
     }
 
     // Call shared logic
-    const result = await processOrder(cartItems, user.id);
+    const checkoutUser = { id: user.id, email: user.email };
+    const result = await processOrder(cartItems, checkoutUser);
 
     if (result.error || !result.success) {
         return { error: result.error };

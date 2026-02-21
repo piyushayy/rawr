@@ -65,14 +65,19 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  let user = null;
   let clout = 0;
-  if (user) {
-    const { data: profile } = await supabase.from('profiles').select('clout_score').eq('id', user.id).single();
-    if (profile) clout = profile.clout_score;
+
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('clout_score').eq('id', user.id).single();
+      if (profile) clout = profile.clout_score;
+    }
+  } catch (error) {
+    console.error("Error fetching user/clout (Supabase may be down):", error);
   }
 
   return (

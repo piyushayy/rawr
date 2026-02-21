@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 
 export default function FilterSidebar() {
@@ -15,16 +15,31 @@ export default function FilterSidebar() {
         Number(searchParams.get("minPrice")) || 0,
         Number(searchParams.get("maxPrice")) || 500
     ]);
-    const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "all");
-    const [selectedSize, setSelectedSize] = useState(searchParams.get("size") || "all");
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParams.getAll("category"));
+    const [selectedSizes, setSelectedSizes] = useState<string[]>(searchParams.getAll("size"));
 
-    const updateFilter = (key: string, value: string | number) => {
+    useEffect(() => {
+        setPriceRange([
+            Number(searchParams.get("minPrice")) || 0,
+            Number(searchParams.get("maxPrice")) || 500
+        ]);
+        setSelectedCategories(searchParams.getAll("category"));
+        setSelectedSizes(searchParams.getAll("size"));
+    }, [searchParams]);
+
+    const toggleFilterArray = (key: string, value: string, currentSelections: string[]) => {
         const params = new URLSearchParams(searchParams.toString());
-        if (value === "all" || value === "") {
-            params.delete(key);
+        let newSelections = [...currentSelections];
+
+        if (newSelections.includes(value)) {
+            newSelections = newSelections.filter(v => v !== value);
         } else {
-            params.set(key, String(value));
+            newSelections.push(value);
         }
+
+        params.delete(key);
+        newSelections.forEach(val => params.append(key, val));
+
         router.push(`${pathname}?${params.toString()}`);
     };
 
@@ -39,8 +54,8 @@ export default function FilterSidebar() {
         router.push(`${pathname}?${params.toString()}`);
     };
 
-    const categories = ["all", "tops", "bottoms", "outerwear", "accessories"];
-    const sizes = ["all", "S", "M", "L", "XL", "XXL"];
+    const categories = ["tops", "bottoms", "outerwear", "accessories"];
+    const sizes = ["S", "M", "L", "XL", "XXL"];
 
     return (
         <div className="w-full md:w-64 shrink-0 space-y-8 p-4 border-2 border-rawr-black bg-white h-fit">
@@ -49,20 +64,20 @@ export default function FilterSidebar() {
             <div>
                 <h3 className="font-heading font-bold uppercase mb-4 text-lg">Category</h3>
                 <div className="space-y-2">
-                    {categories.map((cat) => (
-                        <div key={cat} className="flex items-center gap-2">
-                            <button
-                                onClick={() => {
-                                    setSelectedCategory(cat);
-                                    updateFilter("category", cat);
-                                }}
-                                className={`w-full text-left font-bold uppercase hover:text-rawr-red transition-colors flex items-center justify-between ${selectedCategory === cat ? "text-rawr-red" : "text-gray-500"}`}
-                            >
-                                {cat}
-                                {selectedCategory === cat && <Check className="w-4 h-4" />}
-                            </button>
-                        </div>
-                    ))}
+                    {categories.map((cat) => {
+                        const isSelected = selectedCategories.includes(cat);
+                        return (
+                            <div key={cat} className="flex items-center gap-2">
+                                <button
+                                    onClick={() => toggleFilterArray("category", cat, selectedCategories)}
+                                    className={`w-full text-left font-bold uppercase hover:text-rawr-red transition-colors flex items-center justify-between ${isSelected ? "text-rawr-red" : "text-gray-500"}`}
+                                >
+                                    {cat}
+                                    {isSelected && <Check className="w-4 h-4" />}
+                                </button>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -90,18 +105,18 @@ export default function FilterSidebar() {
             <div>
                 <h3 className="font-heading font-bold uppercase mb-4 text-lg">Size</h3>
                 <div className="flex flex-wrap gap-2">
-                    {sizes.map((size) => (
-                        <button
-                            key={size}
-                            onClick={() => {
-                                setSelectedSize(size);
-                                updateFilter("size", size);
-                            }}
-                            className={`w-10 h-10 border-2 font-bold uppercase flex items-center justify-center transition-all ${selectedSize === size ? "border-rawr-red bg-rawr-red text-white" : "border-rawr-black hover:bg-gray-100"}`}
-                        >
-                            {size === "all" ? "ALL" : size}
-                        </button>
-                    ))}
+                    {sizes.map((size) => {
+                        const isSelected = selectedSizes.includes(size);
+                        return (
+                            <button
+                                key={size}
+                                onClick={() => toggleFilterArray("size", size, selectedSizes)}
+                                className={`w-10 h-10 border-2 font-bold uppercase flex items-center justify-center transition-all min-w-[2.5rem] px-1 ${isSelected ? "border-rawr-red bg-rawr-red text-white" : "border-rawr-black hover:bg-gray-100"}`}
+                            >
+                                {size}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 

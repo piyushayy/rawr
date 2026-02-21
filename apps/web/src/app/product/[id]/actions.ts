@@ -14,6 +14,26 @@ export async function addReview(formData: FormData) {
     const productId = formData.get('productId') as string
     const rating = parseInt(formData.get('rating') as string)
     const comment = formData.get('comment') as string
+    const image = formData.get('image') as File | null
+
+    let images: string[] = []
+
+    if (image && image.size > 0) {
+        const fileExt = image.name.split('.').pop()
+        const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`
+        const filePath = `${user.id}/${productId}/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+            .from('ugc-images')
+            .upload(filePath, image)
+
+        if (uploadError) {
+            console.error('Error uploading image:', uploadError)
+        } else {
+            const { data } = supabase.storage.from('ugc-images').getPublicUrl(filePath)
+            images.push(data.publicUrl)
+        }
+    }
 
     // Check if user verified (simple check: did they buy it?)
     // For now we trust the client or checking orders table
@@ -33,6 +53,7 @@ export async function addReview(formData: FormData) {
         product_id: productId,
         rating,
         comment,
+        images: images.length > 0 ? images : null,
         is_verified: hasBought || false
     }
 
@@ -69,11 +90,39 @@ export async function subscribeToDrop(productId: string) {
         user_id: user.id,
         product_id: productId,
         email: user.email
-    })
+    });
 
     if (error) {
         return { error: error.message };
     }
 
     return { success: true, message: "Signal received. You will be notified." };
+}
+
+export async function subscribeToStock(productId: string, email: string) {
+    const supabase = await createClient();
+
+    // Check if already subscribed
+    const { data: existing } = await supabase
+        .from('stock_requests')
+        .select('id')
+        .eq('user_email', email)
+        .eq('product_id', productId)
+        .single();
+
+    if (existing) {
+        return { message: "You're already on the waitlist for this item." };
+    }
+
+    const { error } = await supabase.from('stock_requests').insert({
+        user_email: email,
+        product_id: productId
+    });
+
+    if (error) {
+        console.error("Stock Request Error:", error);
+        return { error: "Failed to join waitlist. Try again later." };
+    }
+
+    return { success: true, message: "We'll hit you up the second it restocks." };
 }

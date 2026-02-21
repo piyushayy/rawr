@@ -64,7 +64,7 @@ export async function POST(req: Request) {
                 return new NextResponse('Database Error', { status: 500 });
             }
 
-            // Retrieve Order to get User Email
+            // Retrieve Order to get User ID and Email
             const { data: order } = await supabase
                 .from('orders')
                 .select('*, profiles(email)') // Assuming relations or just get user_id
@@ -76,6 +76,43 @@ export async function POST(req: Request) {
 
             if (email) {
                 await sendOrderConfirmation(email, orderId, session.amount / 100);
+            }
+
+            // ---- SaaS CRM Event Tracking (PURCHASE) ----
+            if (order && order.user_id) {
+                // 1. Log the Purchase Event
+                const purchaseAmount = session.amount / 100;
+                await supabase.from("customer_events").insert({
+                    customer_id: order.user_id,
+                    event_type: 'PURCHASE',
+                    event_data: {
+                        order_id: orderId,
+                        amount: purchaseAmount,
+                        currency: session.currency
+                    },
+                    source: 'system',
+                    url: '/api/webhooks/stripe'
+                });
+
+                // 2. Ensure customer CDP profile exists and update LTV / Order Count
+                // Use RPC or an upsert to gracefully handle incrementing without race conditions
+                // For MVP: direct fetch and update
+                const { data: crmUser } = await supabase.from('crm_customers').select('*').eq('id', order.user_id).single();
+
+                if (crmUser) {
+                    await supabase.from('crm_customers').update({
+                        total_orders: crmUser.total_orders + 1,
+                        lifetime_value: Number(crmUser.lifetime_value) + purchaseAmount,
+                        last_active_at: new Date().toISOString()
+                    }).eq('id', order.user_id);
+                } else if (email) { // Create them if they don't exist yet (e.g., existing users before CRM deployment)
+                    await supabase.from('crm_customers').insert({
+                        id: order.user_id,
+                        email: email,
+                        total_orders: 1,
+                        lifetime_value: purchaseAmount
+                    });
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ export async function login(formData: FormData) {
 
     const email = formData.get('email') as string
     const password = formData.get('password') as string
+    const redirectUrl = formData.get('redirectUrl') as string || '/'
 
     const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -22,7 +23,7 @@ export async function login(formData: FormData) {
     }
 
     revalidatePath('/', 'layout')
-    redirect('/')
+    redirect(redirectUrl)
 }
 
 export async function signup(formData: FormData) {
@@ -32,6 +33,7 @@ export async function signup(formData: FormData) {
     const password = formData.get('password') as string
     const fullName = formData.get('fullName') as string
     const phone = formData.get('phone') as string
+    const redirectUrl = formData.get('redirectUrl') as string || '/'
 
     // Get the origin dynamically
     const origin = (await headers()).get('origin');
@@ -40,7 +42,7 @@ export async function signup(formData: FormData) {
         email,
         password,
         options: {
-            emailRedirectTo: `${origin}/auth/callback`,
+            emailRedirectTo: `${origin}/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`,
             data: {
                 full_name: fullName,
                 phone_number: phone,
@@ -59,14 +61,14 @@ export async function signup(formData: FormData) {
     return { success: true, message: 'Check email to continue sign in process' }
 }
 
-export async function loginWithGoogle() {
+export async function loginWithGoogle(redirectUrl: string = '/') {
     const supabase = await createClient()
     const origin = (await headers()).get('origin')
 
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${origin}/auth/callback`,
+            redirectTo: `${origin}/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`,
         },
     })
 

@@ -5,19 +5,31 @@ import { stripe } from "@/utils/stripe";
 import { processOrder } from "./order-service";
 import { createClient } from "@/utils/supabase/server";
 import { CartItem } from "@/types";
+import { rateLimit } from "@/utils/rate-limiter";
+import { headers } from "next/headers";
 
-export async function createPaymentIntent(items: CartItem[], currency: string = 'usd', metadata: any) {
+export async function createPaymentIntent(items: CartItem[], currency: string = 'usd', metadata: any, userDetails?: { id?: string, email?: string, address?: any }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { error: "User not authenticated" };
+    const checkoutUser = {
+        id: user?.id || userDetails?.id,
+        email: user?.email || userDetails?.email,
+        address: userDetails?.address
+    };
+
+    const headersList = await headers();
+    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
+    const limitKey = `checkout_${ip}_${checkoutUser.email || 'guest'}`;
+
+    if (!rateLimit(limitKey, 5, 60 * 1000)) {
+        return { error: "Too many checkout attempts. Take a breath and wait a minute." };
     }
 
     // 1. Create Pending Order & Check Stock
     // This decrement stock immediately. If user abandons, stock is held until timed out (cron job needed) or manual cleanup.
     // For a "Drop", this holding strategy is aggressive but prevents overselling.
-    const orderResult = await processOrder(items, user.id);
+    const orderResult = await processOrder(items, checkoutUser);
 
     if (orderResult.error || !orderResult.success) {
         return { error: orderResult.error };

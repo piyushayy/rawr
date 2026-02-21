@@ -6,6 +6,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 const HERO_SLIDES = [
     {
@@ -53,32 +54,43 @@ export const HeroSlider = () => {
                         <div key={slide.id} className="embla__slide relative flex-[0_0_100%] min-w-0">
                             {/* Background Image */}
                             <div
-                                className="absolute inset-0 bg-cover bg-center"
+                                className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-in-out hover:scale-110"
                                 style={{
                                     backgroundImage: `url(${slide.image})`,
-                                    filter: 'grayscale(100%) contrast(120%) brightness(60%)' // Rawr Aesthetic
+                                    filter: 'contrast(110%) saturate(120%) brightness(80%)' // Punchy, vivid colors
                                 }}
                             />
 
-                            {/* Overlay Gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                            {/* Oblique Slash Overlay Background (Bonkers Corner Style) */}
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
 
                             {/* Content */}
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto space-y-6">
-                                <span className="bg-rawr-red text-white px-4 py-1 text-sm font-bold uppercase tracking-[0.2em] animate-pulse">
-                                    New Arrival
-                                </span>
+                                {/* Sticker Badge */}
+                                <div className="absolute top-20 right-10 md:right-20 animate-spin-slow">
+                                    <div className="relative w-24 h-24 md:w-32 md:h-32 flex items-center justify-center bg-rawr-neon rounded-full mix-blend-screen text-rawr-black font-black uppercase text-center leading-none transform rotate-12 drop-shadow-lg">
+                                        <span className="z-10 text-sm md:text-lg">NEW<br />DROP</span>
+                                    </div>
+                                </div>
 
-                                <h1 className="text-6xl md:text-9xl font-heading font-black text-white leading-[0.85] uppercase tracking-tighter mix-blend-overlay">
+                                <motion.span
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-rawr-red text-white border-2 border-white px-6 py-2 text-sm md:text-lg font-bold uppercase tracking-[0.3em]"
+                                >
+                                    Limited Edition
+                                </motion.span>
+
+                                <h1 className="text-6xl md:text-9xl font-heading font-black text-white leading-[0.85] uppercase tracking-tighter drop-shadow-[4px_4px_0_rgba(230,0,0,1)]">
                                     {slide.title}
                                 </h1>
 
-                                <p className="text-xl md:text-2xl text-gray-300 font-bold max-w-xl font-body">
+                                <p className="text-xl md:text-3xl text-white font-bold max-w-2xl font-body bg-black/50 p-4 border border-white/20 backdrop-blur-sm">
                                     {slide.subtitle}
                                 </p>
 
                                 <Link href={slide.link}>
-                                    <Button size="lg" className="h-16 px-12 text-xl bg-white text-rawr-black hover:bg-rawr-red hover:text-white transition-all transform hover:scale-105 uppercase font-black">
+                                    <Button size="lg" className="h-16 px-12 text-xl bg-rawr-neon text-rawr-black hover:bg-white hover:text-black shadow-[8px_8px_0px_0px_transparent] border-2 border-transparent uppercase font-black tracking-widest transition-all">
                                         {slide.cta} <ArrowRight className="ml-2 w-6 h-6" />
                                     </Button>
                                 </Link>

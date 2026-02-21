@@ -8,6 +8,9 @@ import { useState } from "react";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ProductForm({ action, initialData }: { action: any, initialData?: any }) {
     const [loading, setLoading] = useState(false);
+    const [variants, setVariants] = useState<any[]>(
+        initialData?.variants?.length ? initialData.variants : [{ id: crypto.randomUUID(), sku: '', size: 'OS', stock_quantity: 1 }]
+    );
 
     return (
         <form
@@ -164,8 +167,118 @@ export default function ProductForm({ action, initialData }: { action: any, init
                     </div>
                 </div>
 
+                {/* --- SEO SECTION --- */}
+                <div className="col-span-2 border-t border-gray-200 mt-6 pt-6">
+                    <h3 className="font-heading font-black text-xl mb-4">SEARCH ENGINE OPTIMIZATION (SEO)</h3>
+                </div>
+
+                <div className="space-y-2 col-span-2">
+                    <label className="font-bold text-sm uppercase">SEO Title</label>
+                    <input
+                        name="seo_title"
+                        defaultValue={initialData?.seo_title}
+                        placeholder="e.g. Vintage Leather Jacket | RAWR STORE"
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                    <p className="text-xs text-gray-500">Overrides the default page title. Keep under 60 characters.</p>
+                </div>
+
+                <div className="space-y-2 col-span-2">
+                    <label className="font-bold text-sm uppercase">SEO Description</label>
+                    <textarea
+                        name="seo_description"
+                        rows={2}
+                        defaultValue={initialData?.seo_description}
+                        placeholder="A highly clickable description for Google search results..."
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                    <p className="text-xs text-gray-500">Keep under 160 characters for best results.</p>
+                </div>
+
+                {/* --- VARIANTS SECTION --- */}
+                <div className="col-span-2 border-t border-gray-200 mt-6 pt-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-heading font-black text-xl">PRODUCT VARIANTS</h3>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                setVariants([...variants, { id: crypto.randomUUID(), sku: '', size: 'OS', stock_quantity: 1 }]);
+                            }}
+                        >
+                            + ADD VARIANT
+                        </Button>
+                    </div>
+
+                    {/* Hidden input to pass variants JSON to server action */}
+                    <input type="hidden" name="variants_json" value={JSON.stringify(variants)} />
+
+                    <div className="space-y-4">
+                        {variants.map((variant, index) => (
+                            <div key={variant.id} className="flex items-end gap-4 bg-gray-50 p-4 border border-gray-200 rounded relative">
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs font-bold uppercase">Size</label>
+                                    <input
+                                        value={variant.size}
+                                        onChange={(e) => {
+                                            const newVariants = [...variants];
+                                            newVariants[index].size = e.target.value;
+                                            setVariants(newVariants);
+                                        }}
+                                        className="w-full p-2 border rounded uppercase"
+                                        placeholder="OS, S, M, L..."
+                                    />
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs font-bold uppercase">SKU</label>
+                                    <input
+                                        value={variant.sku}
+                                        onChange={(e) => {
+                                            const newVariants = [...variants];
+                                            newVariants[index].sku = e.target.value;
+                                            setVariants(newVariants);
+                                        }}
+                                        className="w-full p-2 border rounded uppercase"
+                                        placeholder="RAWR-JKT-01"
+                                    />
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs font-bold uppercase">Stock Qty</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={variant.stock_quantity}
+                                        onChange={(e) => {
+                                            const newVariants = [...variants];
+                                            newVariants[index].stock_quantity = parseInt(e.target.value) || 0;
+                                            setVariants(newVariants);
+                                        }}
+                                        className="w-full p-2 border rounded"
+                                    />
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => {
+                                        setVariants(variants.filter((_, i) => i !== index));
+                                    }}
+                                >
+                                    X
+                                </Button>
+                            </div>
+                        ))}
+                        {variants.length === 0 && (
+                            <p className="text-sm text-gray-500 italic p-4 bg-yellow-50 border border-yellow-200">
+                                Warning: No variants defined. Users won't be able to easily select sizes unless relying on fallback logic.
+                            </p>
+                        )}
+                    </div>
+                </div>
+
                 {initialData && (
-                    <div className="col-span-2 flex items-center gap-2">
+                    <div className="col-span-2 flex items-center gap-2 mt-6 border-t border-gray-200 pt-6">
                         <input
                             type="checkbox"
                             name="sold_out"
@@ -173,7 +286,7 @@ export default function ProductForm({ action, initialData }: { action: any, init
                             defaultChecked={initialData.sold_out}
                             className="w-5 h-5"
                         />
-                        <label htmlFor="sold_out" className="font-bold uppercase text-sm">Mark as Sold Out</label>
+                        <label htmlFor="sold_out" className="font-bold uppercase text-sm">Force Mark as Sold Out (Overrides Variant Stock)</label>
                     </div>
                 )}
 
@@ -189,9 +302,9 @@ export default function ProductForm({ action, initialData }: { action: any, init
 
             </div>
 
-            <div className="pt-4">
-                <Button type="submit" disabled={loading} className="w-full h-12 bg-rawr-black text-white hover:bg-gray-800">
-                    {loading ? "SAVING..." : "SAVE PRODUCT"}
+            <div className="pt-8">
+                <Button type="submit" disabled={loading} className="w-full h-14 text-xl tracking-widest bg-rawr-black text-white hover:bg-rawr-red border-none uppercase shadow-[4px_4px_0px_#FF0000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                    {loading ? "SAVING DB..." : "SAVE PRODUCT"}
                 </Button>
             </div>
         </form>

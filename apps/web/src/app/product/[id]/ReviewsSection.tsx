@@ -41,7 +41,7 @@ export default async function ReviewsSection({ productId }: { productId: string 
                 <div className="space-y-6">
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {reviews?.map((review: any) => (
-                        <div key={review.id} className="border-b-2 border-gray-100 pb-6">
+                        <div key={review.id} className="border-b-2 border-gray-200 pb-6">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className="flex">
@@ -57,7 +57,15 @@ export default async function ReviewsSection({ productId }: { productId: string 
                                 </div>
                                 <span className="text-xs text-gray-400 font-bold">{new Date(review.created_at).toLocaleDateString()}</span>
                             </div>
-                            <p className="font-bold text-gray-800">{review.comment}</p>
+                            <p className="font-bold text-gray-800 leading-relaxed mb-3">{review.comment}</p>
+                            {review.images && review.images.length > 0 && (
+                                <div className="flex gap-2 mt-3 overflow-x-auto pb-2 snap-x">
+                                    {review.images.map((img: string, idx: number) => (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img key={idx} src={img} alt="Review" className="w-24 h-24 object-cover border border-rawr-black shrink-0 snap-start" />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     ))}
                     {total === 0 && <p className="text-gray-500 italic">No reviews yet. Be the first.</p>}

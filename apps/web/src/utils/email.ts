@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
+import OrderConfirmationEmail from '@/emails/OrderConfirmation';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
 export async function sendOrderConfirmation(to: string, orderId: string, total: number) {
     if (!process.env.RESEND_API_KEY) {
@@ -10,28 +11,16 @@ export async function sendOrderConfirmation(to: string, orderId: string, total: 
 
     try {
         await resend.emails.send({
-            from: 'RAWR Streamware <orders@resend.dev>', // Use resend.dev for testing unless domain is verified
+            from: 'RAWR STORE <orders@rawr.store>', // Verification required in actual prod
             to,
             subject: `ORDER CONFIRMED: #${orderId.slice(0, 8).toUpperCase()}`,
-            html: `
-                <div style="font-family: sans-serif; background: #f4f4f4; padding: 20px;">
-                    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border: 2px solid #050505;">
-                        <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase;">Order Confirmed</h1>
-                        <p style="font-size: 16px; margin-bottom: 20px;">Your gear is secured. Prepare for shipment.</p>
-                        
-                        <div style="background: #000; color: #fff; padding: 20px; margin-bottom: 20px;">
-                            <p style="margin: 0; font-size: 14px; text-transform: uppercase;">Order ID</p>
-                            <p style="margin: 0; font-size: 24px; font-weight: bold;">${orderId.slice(0, 8).toUpperCase()}</p>
-                        </div>
-
-                         <div style="border-top: 2px solid #000; padding-top: 20px;">
-                            <p style="font-size: 20px; font-weight: bold;">Total: $${total.toFixed(2)}</p>
-                        </div>
-
-                        <p style="margin-top: 40px; font-size: 12px; color: #666;">RAWR STREAMWARE // WORLDWIDE</p>
-                    </div>
-                </div>
-            `,
+            react: OrderConfirmationEmail({
+                orderId: orderId.slice(0, 8).toUpperCase(),
+                customerName: "Fam",
+                totalAmount: total.toFixed(2),
+                trackingUrl: `https://rawr.store/orders/${orderId}`,
+                items: []
+            }) as React.ReactElement,
         });
         console.log(`[EMAIL] Sent confirmation to ${to}`);
     } catch (error) {

@@ -34,6 +34,10 @@ export default function CheckoutPage() {
     const [clientSecret, setClientSecret] = useState("");
     const [orderId, setOrderId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [guestEmail, setGuestEmail] = useState("");
+    const [guestName, setGuestName] = useState("");
+    const [checkoutStep, setCheckoutStep] = useState<'details' | 'payment'>('details');
 
     useEffect(() => {
         const recoverCart = async () => {
@@ -68,12 +72,15 @@ export default function CheckoutPage() {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            // ... (Profile Fetch Logic)
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
+                setIsAuthenticated(true);
+                setCheckoutStep('payment');
                 const { data: profile } = await supabase.from('profiles').select('clout_score').eq('id', user.id).single();
                 setClout(profile?.clout_score || 0);
+            } else {
+                setIsAuthenticated(false);
             }
         };
         fetchProfile();
@@ -115,7 +122,8 @@ export default function CheckoutPage() {
         setIsLoading(true);
         try {
             const { createRazorpayOrder, verifyRazorpayPayment } = await import("./razorpay-actions");
-            const data = await createRazorpayOrder(items);
+            const userDetails = !isAuthenticated ? { email: guestEmail, name: guestName } : undefined;
+            const data = await createRazorpayOrder(items, userDetails);
 
             if (data.error || !data.razorpayOrderId) {
                 toast.error(data.error || "Payment Init Failed");
@@ -175,7 +183,8 @@ export default function CheckoutPage() {
     const handleStripeInit = async () => {
         setIsLoading(true);
         const { createPaymentIntent } = await import("./stripe-actions");
-        const data = await createPaymentIntent(items, currency.toLowerCase(), { source: "web" });
+        const userDetails = !isAuthenticated ? { email: guestEmail, name: guestName } : undefined;
+        const data = await createPaymentIntent(items, currency.toLowerCase(), { source: "web" }, userDetails);
 
         if (data.error) {
             toast.error(data.error);
@@ -235,9 +244,29 @@ export default function CheckoutPage() {
                 <div className="max-w-xl mx-auto">
                     <h1 className="text-4xl font-heading font-black uppercase mb-8">Secure Checkout</h1>
 
-                    {!paymentMethod ? (
+                    {checkoutStep === 'details' ? (
+                        <div className="space-y-6 py-12 text-center border-2 border-rawr-black p-8 bg-gray-50">
+                            <Lock className="w-12 h-12 mx-auto text-rawr-black mb-4" />
+                            <h3 className="text-2xl font-heading font-black uppercase mb-2">Join The Cult to Checkout</h3>
+                            <p className="font-body text-gray-500 mb-8 max-w-sm mx-auto">
+                                We need your details to secure your stash, provide accurate shipping, and prevent bots from eating our inventory.
+                            </p>
+                            <Link href="/login?redirect=/checkout" className="block w-full">
+                                <Button className="w-full h-16 text-xl tracking-widest bg-rawr-black text-white hover:bg-gray-900 border-none uppercase shadow-[8px_8px_0px_0px_transparent] hover:shadow-[4px_4px_0px_0px_transparent] hover:translate-y-[2px] hover:translate-x-[2px] transition-all">
+                                    Login / Sign Up
+                                </Button>
+                            </Link>
+                        </div>
+                    ) : !paymentMethod ? (
                         <div className="space-y-4">
-                            <h3 className="font-bold uppercase mb-4">Select Payment Method</h3>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-bold uppercase">Select Payment Method</h3>
+                                {!isAuthenticated && (
+                                    <button onClick={() => setCheckoutStep('details')} className="text-sm underline hover:text-rawr-red">
+                                        Edit Details
+                                    </button>
+                                )}
+                            </div>
 
                             <div
                                 onClick={() => { setPaymentMethod('razorpay'); }}

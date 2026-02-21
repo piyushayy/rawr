@@ -19,11 +19,12 @@ export const ProductCard = (props: ProductProps) => {
     const isDroppingSoon = release_date ? new Date(release_date) > new Date() : false;
     return (
         <Link href={`/product/${id}`} className="group block relative">
-            <div className="relative aspect-[3/4] overflow-hidden border-2 border-rawr-black bg-gray-100">
+            <div className="relative aspect-[3/4] overflow-hidden border-2 border-rawr-black bg-gray-100 transition-all duration-300 shadow-[4px_4px_0px_0px_#050505] group-hover:shadow-[8px_8px_0px_0px_#E60000] group-hover:-translate-y-1 group-hover:-translate-x-1">
                 <Image
                     src={images[0]}
                     alt={title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     className={`object-cover transition-transform duration-500 group-hover:scale-110 ${soldOut ? 'grayscale contrast-125' : ''}`}
                 />
 
@@ -82,20 +83,6 @@ export const ProductCard = (props: ProductProps) => {
                             onClick={async (e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-
-                                const supabase = createClient();
-                                const { data: { user } } = await supabase.auth.getUser();
-
-                                if (!user) {
-                                    toast.error("JOIN THE CULT FIRST", {
-                                        description: "You must be logged in to cop rare items.",
-                                        action: {
-                                            label: "LOGIN",
-                                            onClick: () => window.location.href = "/login",
-                                        }
-                                    });
-                                    return;
-                                }
 
                                 addItem({ id, title, price, image: images[0], size, quantity: 1 });
                                 toast("ADDED TO STASH", {

@@ -4,6 +4,7 @@ import { ShopFilters } from "@/components/shared/ShopFilters";
 import { Metadata } from "next";
 
 import { DealCountdown } from "@/components/shared/DealCountdown";
+import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 
 export const metadata: Metadata = {
     title: "RAWR | SHOP ALL",
@@ -28,6 +29,14 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             <DealCountdown />
 
             <div className="container mx-auto px-4 py-8">
+                {/* Breadcrumbs */}
+                <div className="mb-4">
+                    <Breadcrumbs items={[
+                        { label: "Shop", href: "/shop" },
+                        ...(params.category ? [{ label: Array.isArray(params.category) ? params.category.join(", ") : params.category, href: `/shop?category=${params.category}` }] : [])
+                    ]} />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Sidebar Filters */}
                     <div className="md:col-span-1 border-r-2 border-transparent md:border-rawr-black pr-0 md:pr-8">
