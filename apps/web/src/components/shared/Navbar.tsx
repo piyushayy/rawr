@@ -64,8 +64,8 @@ export const Navbar = ({ user, clout = 0 }: NavbarProps) => {
 
                     {/* Desktop Nav (Center) */}
                     <div className="hidden md:flex flex-1 items-center justify-center gap-8 font-heading font-bold text-lg tracking-wide">
-                        <div className="relative h-full flex items-center" onMouseEnter={() => setIsMegaMenuOpen(true)} onMouseLeave={() => setIsMegaMenuOpen(false)}>
-                            <Link href="/shop" className="hover:underline decoration-2 underline-offset-4 decoration-rawr-red py-6">SHOP</Link>
+                        <div className="h-full flex items-center" onMouseEnter={() => setIsMegaMenuOpen(true)} onMouseLeave={() => setIsMegaMenuOpen(false)}>
+                            <Link href="/shop" className="hover:underline decoration-2 underline-offset-4 decoration-rawr-red py-6 h-full flex items-center">SHOP</Link>
                             <AnimatePresence>
                                 {isMegaMenuOpen && <MegaMenu isOpen={isMegaMenuOpen} onClose={() => setIsMegaMenuOpen(false)} />}
                             </AnimatePresence>
