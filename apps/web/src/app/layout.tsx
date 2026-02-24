@@ -88,7 +88,6 @@ export default async function RootLayout({
         <PulseFeed />
         <div className="flex flex-col min-h-screen">
           <AnnouncementBar />
-          <Ticker />
           <Navbar user={user} clout={clout} />
           <CartDrawer />
           <main className="flex-1">
