@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { logSecurityEvent } from "./rbac";
 
 export async function checkAdmin() {
     const supabase = await createClient();
@@ -22,6 +23,7 @@ export async function checkAdmin() {
     }
 
     if (error || profile?.role !== "admin") {
+        await logSecurityEvent('UNAUTHORIZED_ADMIN_ACCESS_ATTEMPT', user.id, { action: 'checkAdmin_fallback' });
         redirect("/"); // Redirect unauthorized users to home
     }
 

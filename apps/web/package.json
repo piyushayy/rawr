@@ -10,6 +10,7 @@
     "seed": "tsx scripts/seed-real-data.ts"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.4.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -43,6 +44,7 @@
     "sonner": "^2.0.7",
     "stripe": "^20.3.0",
     "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.6",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

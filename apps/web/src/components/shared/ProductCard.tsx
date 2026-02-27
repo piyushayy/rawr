@@ -17,6 +17,11 @@ export const ProductCard = (props: ProductProps) => {
     const { id, title, price, images, size, soldOut, release_date } = props;
     const { addItem } = useCartStore();
     const isDroppingSoon = release_date ? new Date(release_date) > new Date() : false;
+    const isPreOrder = title.toUpperCase().includes('PRE-ORDER') || title.toUpperCase().includes('PRE BOOKING');
+
+    // JerseyWala style pseudo-random live stock to build hype
+    const stockCount = 100 + (id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 400);
+
     return (
         <Link href={`/product/${id}`} className="group block relative">
             <div className="relative aspect-[3/4] overflow-hidden border-2 border-rawr-black bg-gray-100 transition-all duration-300 shadow-[4px_4px_0px_0px_#050505] group-hover:shadow-[8px_8px_0px_0px_#E60000] group-hover:-translate-y-1 group-hover:-translate-x-1">
@@ -25,8 +30,18 @@ export const ProductCard = (props: ProductProps) => {
                     alt={title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    className={`object-cover transition-transform duration-500 group-hover:scale-110 ${soldOut ? 'grayscale contrast-125' : ''}`}
+                    className={`object-cover transition-transform duration-500 group-hover:scale-110 ${soldOut ? 'grayscale contrast-125' : ''} ${images[1] ? 'group-hover:opacity-0' : ''}`}
                 />
+
+                {images[1] && (
+                    <Image
+                        src={images[1]}
+                        alt={`${title} alternate`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className={`object-cover transition-transform duration-500 scale-100 opacity-0 group-hover:scale-110 group-hover:opacity-100 ${soldOut ? 'grayscale contrast-125' : ''}`}
+                    />
+                )}
 
                 {props.video_url && (
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
@@ -55,9 +70,25 @@ export const ProductCard = (props: ProductProps) => {
                     </form>
                 </div>
 
+                {isPreOrder && !soldOut && !isDroppingSoon && (
+                    <div className="absolute top-2 right-12 z-20 transition-transform hover:-translate-y-1">
+                        <span className="bg-yellow-400 text-black font-bold uppercase text-[10px] px-2 py-1 shadow-[2px_2px_0_0_#000] border border-black">
+                            PRE ORDER
+                        </span>
+                    </div>
+                )}
+
+                {!soldOut && !isDroppingSoon && (
+                    <div className="absolute bottom-[4.5rem] left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <span className="bg-white/95 text-rawr-black font-mono text-[10px] font-bold px-2 py-1.5 flex items-center gap-1.5 border border-rawr-black shadow-sm backdrop-blur-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rawr-black animate-pulse"></span> In stock, {stockCount} units
+                        </span>
+                    </div>
+                )}
+
                 {soldOut && !isDroppingSoon && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-                        <span className="text-red-500 font-heading font-black text-3xl md:text-6xl rotate-[-15deg] border-4 border-red-500 px-4 py-2 opacity-90 mix-blend-hard-light">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 transition-colors group-hover:bg-black/40">
+                        <span className="text-red-500 font-heading font-black text-3xl md:text-6xl rotate-[-15deg] border-4 border-red-500 px-4 py-2 opacity-90 mix-blend-hard-light shadow-2xl">
                             SOLD
                         </span>
                     </div>

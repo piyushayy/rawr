@@ -6,6 +6,8 @@ import { processOrder } from './order-service';
 import { CartItem } from '@/types';
 import { rateLimit } from '@/utils/rate-limiter';
 import { headers } from 'next/headers';
+import { CheckoutRequestSchema } from "@/lib/validations/checkout";
+import { verifyTurnstileToken } from "@/utils/turnstile";
 
 // Initialize Razorpay
 // Note: User must key in .env RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET
@@ -14,7 +16,20 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
-export async function createRazorpayOrder(items: CartItem[], userDetails?: { id?: string, email?: string, address?: any }) {
+export async function createRazorpayOrder(items: CartItem[], userDetails?: { id?: string, email?: string, address?: any }, turnstileToken?: string) {
+    const isBotClear = await verifyTurnstileToken(turnstileToken);
+    if (!isBotClear) {
+        return { error: "Security check failed. Please refresh and try again." };
+    }
+
+    const parsed = CheckoutRequestSchema.safeParse({ items, user: userDetails, turnstileToken });
+    if (!parsed.success) {
+        return { error: "Invalid request data: " + parsed.error.issues[0].message };
+    }
+
+    const cleanItems = parsed.data.items as CartItem[];
+    const cleanUser = parsed.data.user;
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 

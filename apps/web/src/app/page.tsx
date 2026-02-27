@@ -7,6 +7,7 @@ import { RecentlyViewed } from "@/components/shared/RecentlyViewed";
 
 
 import { BrandManifesto } from "@/components/shared/BrandManifesto";
+import { FeaturedFeedback } from "@/components/shared/FeaturedFeedback";
 
 export default async function Home() {
   let products = await getProducts();
@@ -119,6 +120,8 @@ export default async function Home() {
       <section className="container mx-auto px-4 pb-20">
         <RecentlyViewed />
       </section>
+
+      <FeaturedFeedback />
 
       {/* Manifesto / CTA */}
       <section className="bg-rawr-red border-y-2 border-rawr-black py-24 text-center px-4">

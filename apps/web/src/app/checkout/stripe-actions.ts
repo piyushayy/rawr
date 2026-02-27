@@ -7,8 +7,25 @@ import { createClient } from "@/utils/supabase/server";
 import { CartItem } from "@/types";
 import { rateLimit } from "@/utils/rate-limiter";
 import { headers } from "next/headers";
+import { CheckoutRequestSchema } from "@/lib/validations/checkout";
+import { verifyTurnstileToken } from "@/utils/turnstile";
 
-export async function createPaymentIntent(items: CartItem[], currency: string = 'usd', metadata: any, userDetails?: { id?: string, email?: string, address?: any }) {
+export async function createPaymentIntent(items: CartItem[], currency: string = 'usd', metadata: any, userDetails?: { id?: string, email?: string, address?: any }, turnstileToken?: string) {
+    const isBotClear = await verifyTurnstileToken(turnstileToken);
+    if (!isBotClear) {
+        return { error: "Security check failed. Please refresh and try again." };
+    }
+
+    const parsed = CheckoutRequestSchema.safeParse({ items, user: userDetails, currency, turnstileToken });
+    if (!parsed.success) {
+        return { error: "Invalid request data: " + parsed.error.issues[0].message };
+    }
+
+    // Use clean validated data
+    const cleanItems = parsed.data.items as CartItem[];
+    const cleanUser = parsed.data.user;
+    const cleanCurrency = parsed.data.currency || currency;
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 

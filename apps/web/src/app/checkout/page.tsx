@@ -14,6 +14,7 @@ import { Price } from "@/components/shared/Price";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { StripeWrapper } from "./StripeCheckout";
 import Script from "next/script";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 declare global {
     interface Window {
@@ -31,6 +32,7 @@ export default function CheckoutPage() {
 
     // State
     const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'razorpay' | null>(null);
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
     const [clientSecret, setClientSecret] = useState("");
     const [orderId, setOrderId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -123,7 +125,7 @@ export default function CheckoutPage() {
         try {
             const { createRazorpayOrder, verifyRazorpayPayment } = await import("./razorpay-actions");
             const userDetails = !isAuthenticated ? { email: guestEmail, name: guestName } : undefined;
-            const data = await createRazorpayOrder(items, userDetails);
+            const data = await createRazorpayOrder(items, userDetails, turnstileToken || "");
 
             if (data.error || !data.razorpayOrderId) {
                 toast.error(data.error || "Payment Init Failed");
@@ -184,7 +186,7 @@ export default function CheckoutPage() {
         setIsLoading(true);
         const { createPaymentIntent } = await import("./stripe-actions");
         const userDetails = !isAuthenticated ? { email: guestEmail, name: guestName } : undefined;
-        const data = await createPaymentIntent(items, currency.toLowerCase(), { source: "web" }, userDetails);
+        const data = await createPaymentIntent(items, currency.toLowerCase(), { source: "web" }, userDetails, turnstileToken || "");
 
         if (data.error) {
             toast.error(data.error);
@@ -312,10 +314,13 @@ export default function CheckoutPage() {
                             {paymentMethod === 'razorpay' && (
                                 <div className="text-center py-8">
                                     <p className="mb-6 font-bold text-xl">Order Total: <Price amount={finalTotal} /></p>
+                                    <div className="flex justify-center mb-6">
+                                        <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} onSuccess={setTurnstileToken} />
+                                    </div>
                                     <Button
                                         onClick={handleRazorpayPayment}
-                                        disabled={isLoading}
-                                        className="w-full h-16 text-xl bg-[#3399cc] hover:bg-[#2b88b5] text-white font-bold"
+                                        disabled={isLoading || !turnstileToken}
+                                        className="w-full h-16 text-xl bg-[#3399cc] hover:bg-[#2b88b5] text-white font-bold disabled:opacity-50"
                                     >
                                         {isLoading ? "PROCESSING..." : "PAY WITH RAZORPAY"}
                                     </Button>
@@ -328,8 +333,18 @@ export default function CheckoutPage() {
                                     {clientSecret && orderId ? (
                                         <StripeWrapper amount={finalTotal} clientSecret={clientSecret} orderId={orderId} />
                                     ) : (
-                                        <div className="p-8 text-center animate-pulse border-2 border-dashed border-gray-300">
-                                            Creating Secure Session...
+                                        <div className="text-center py-8">
+                                            <p className="mb-6 font-bold text-xl">Order Total: <Price amount={finalTotal} /></p>
+                                            <div className="flex justify-center mb-6">
+                                                <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} onSuccess={setTurnstileToken} />
+                                            </div>
+                                            <Button
+                                                onClick={handleStripeInit}
+                                                disabled={isLoading || !turnstileToken}
+                                                className="w-full h-16 text-xl bg-rawr-black hover:bg-gray-900 text-white font-bold disabled:opacity-50"
+                                            >
+                                                {isLoading ? "INITIATING..." : "PAY WITH STRIPE"}
+                                            </Button>
                                         </div>
                                     )}
                                 </>
