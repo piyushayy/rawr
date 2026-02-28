@@ -73,7 +73,11 @@ export default async function RootLayout({
     user = data?.user || null;
 
     if (user) {
-      const { data: profile } = await supabase.from('profiles').select('clout_score').eq('id', user.id).single();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("clout_score")
+        .eq("id", user.id)
+        .single();
       if (profile) clout = profile.clout_score;
     }
   } catch (error) {
@@ -90,9 +94,7 @@ export default async function RootLayout({
           <AnnouncementBar />
           <Navbar user={user} clout={clout} />
           <CartDrawer />
-          <main className="flex-1">
-            {children}
-          </main>
+          <main className="flex-1">{children}</main>
           <Footer />
           <Toaster />
           <CookieConsent />

@@ -33,18 +33,18 @@ export default async function CustomerListPage({
   }
 
   // Segments
-  if (segment === 'whales') {
-    dbQuery = dbQuery.gte('total_spend', 500);
-  } else if (segment === 'vip') {
-    dbQuery = dbQuery.gte('order_count', 3);
-  } else if (segment === 'clout_gods') {
-    dbQuery = dbQuery.gte('clout_score', 1000);
-  } else if (segment === 'newbies') {
+  if (segment === "whales") {
+    dbQuery = dbQuery.gte("total_spend", 500);
+  } else if (segment === "vip") {
+    dbQuery = dbQuery.gte("order_count", 3);
+  } else if (segment === "clout_gods") {
+    dbQuery = dbQuery.gte("clout_score", 1000);
+  } else if (segment === "newbies") {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    dbQuery = dbQuery.gte('joined_at', thirtyDaysAgo.toISOString());
-  } else if (segment === 'zero_spend') {
-    dbQuery = dbQuery.or('total_spend.eq.0,total_spend.is.null');
+    dbQuery = dbQuery.gte("joined_at", thirtyDaysAgo.toISOString());
+  } else if (segment === "zero_spend") {
+    dbQuery = dbQuery.or("total_spend.eq.0,total_spend.is.null");
   }
 
   // Sort
@@ -141,24 +141,66 @@ export default async function CustomerListPage({
 
       {/* Segments Generator Tab */}
       <div className="bg-white p-4 border border-x-0 border-t-0 md:border md:rounded flex overflow-x-auto whitespace-nowrap hide-scrollbar items-center gap-2 mt-4">
-        <span className="font-bold uppercase text-xs text-gray-400 mr-2 tracking-widest"><Filter className="w-4 h-4 inline mr-1" /> Segments:</span>
+        <span className="font-bold uppercase text-xs text-gray-400 mr-2 tracking-widest">
+          <Filter className="w-4 h-4 inline mr-1" /> Segments:
+        </span>
         <Link href={`/admin/customers?segment=all&sort=${sort}&q=${query}`}>
-          <Button size="sm" variant={segment === 'all' ? 'default' : 'outline'} className="rounded-full h-8 px-4 text-xs font-bold">All Customers</Button>
+          <Button
+            size="sm"
+            variant={segment === "all" ? "default" : "outline"}
+            className="rounded-full h-8 px-4 text-xs font-bold"
+          >
+            All Customers
+          </Button>
         </Link>
         <Link href={`/admin/customers?segment=whales&sort=${sort}&q=${query}`}>
-          <Button size="sm" variant={segment === 'whales' ? 'destructive' : 'outline'} className="rounded-full h-8 px-4 text-xs font-bold">Whales ($500+)</Button>
+          <Button
+            size="sm"
+            variant={segment === "whales" ? "destructive" : "outline"}
+            className="rounded-full h-8 px-4 text-xs font-bold"
+          >
+            Whales ($500+)
+          </Button>
         </Link>
         <Link href={`/admin/customers?segment=vip&sort=${sort}&q=${query}`}>
-          <Button size="sm" variant={segment === 'vip' ? 'default' : 'outline'} className={`rounded-full h-8 px-4 text-xs font-bold ${segment === 'vip' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}>VIP (3+ Orders)</Button>
+          <Button
+            size="sm"
+            variant={segment === "vip" ? "default" : "outline"}
+            className={`rounded-full h-8 px-4 text-xs font-bold ${segment === "vip" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+          >
+            VIP (3+ Orders)
+          </Button>
         </Link>
-        <Link href={`/admin/customers?segment=clout_gods&sort=${sort}&q=${query}`}>
-          <Button size="sm" variant={segment === 'clout_gods' ? 'default' : 'outline'} className={`rounded-full h-8 px-4 text-xs font-bold ${segment === 'clout_gods' ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' : ''}`}>Clout Gods</Button>
+        <Link
+          href={`/admin/customers?segment=clout_gods&sort=${sort}&q=${query}`}
+        >
+          <Button
+            size="sm"
+            variant={segment === "clout_gods" ? "default" : "outline"}
+            className={`rounded-full h-8 px-4 text-xs font-bold ${segment === "clout_gods" ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600" : ""}`}
+          >
+            Clout Gods
+          </Button>
         </Link>
         <Link href={`/admin/customers?segment=newbies&sort=${sort}&q=${query}`}>
-          <Button size="sm" variant={segment === 'newbies' ? 'default' : 'outline'} className="rounded-full h-8 px-4 text-xs font-bold">New Blood (30 Days)</Button>
+          <Button
+            size="sm"
+            variant={segment === "newbies" ? "default" : "outline"}
+            className="rounded-full h-8 px-4 text-xs font-bold"
+          >
+            New Blood (30 Days)
+          </Button>
         </Link>
-        <Link href={`/admin/customers?segment=zero_spend&sort=${sort}&q=${query}`}>
-          <Button size="sm" variant={segment === 'zero_spend' ? 'default' : 'outline'} className="rounded-full h-8 px-4 text-xs font-bold text-gray-500">Zero Spend</Button>
+        <Link
+          href={`/admin/customers?segment=zero_spend&sort=${sort}&q=${query}`}
+        >
+          <Button
+            size="sm"
+            variant={segment === "zero_spend" ? "default" : "outline"}
+            className="rounded-full h-8 px-4 text-xs font-bold text-gray-500"
+          >
+            Zero Spend
+          </Button>
         </Link>
       </div>
 
