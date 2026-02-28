@@ -83,7 +83,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${oswald.variable} ${inter.variable} antialiased bg-background text-foreground uppercase-headings`}
+        className={`${oswald.variable} ${inter.variable} antialiased bg-background text-foreground uppercase-headings overflow-x-hidden`}
       >
         <PulseFeed />
         <div className="flex flex-col min-h-screen">
