@@ -20,29 +20,34 @@ const mapDatabaseToProduct = (row: any): Product => ({
   // Map variants if they exist (joined via relation)
   variants: row.product_variants
     ? row.product_variants.map((v: any) => ({
-        id: v.id,
-        product_id: v.product_id,
-        sku: v.sku,
-        size: v.size,
-        stock_quantity: v.stock_quantity,
-        price_override: v.price_override,
-      }))
+      id: v.id,
+      product_id: v.product_id,
+      sku: v.sku,
+      size: v.size,
+      stock_quantity: v.stock_quantity,
+      price_override: v.price_override,
+    }))
     : [],
 });
 
 export const getProducts = async (): Promise<Product[]> => {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*, product_variants(*)")
-    .order("created_at", { ascending: false });
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*, product_variants(*)")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching products:", error);
+    if (error) {
+      console.error("Error fetching products:", error);
+      return [];
+    }
+
+    return (data || []).map(mapDatabaseToProduct);
+  } catch (err) {
+    console.error("Caught exception fetching products (Supabase may be down):", err);
     return [];
   }
-
-  return (data || []).map(mapDatabaseToProduct);
 };
 
 export const getProductById = async (

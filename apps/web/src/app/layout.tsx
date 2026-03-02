@@ -64,11 +64,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
   let user = null;
   let clout = 0;
 
   try {
+    const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     user = data?.user || null;
 
