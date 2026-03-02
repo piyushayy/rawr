@@ -27,12 +27,6 @@ export const Footer = () => {
             Manifesto (About)
           </Link>
           <Link
-            href="/lookbook"
-            className="font-body text-sm hover:text-rawr-red transition-colors"
-          >
-            Lookbook
-          </Link>
-          <Link
             href="/contact"
             className="font-body text-sm hover:text-rawr-red transition-colors"
           >

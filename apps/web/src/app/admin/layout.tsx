@@ -29,7 +29,6 @@ export default async function AdminLayout({
     { label: "Customers", href: "/admin/customers", icon: Users },
     { label: "Inbox", href: "/admin/inbox", icon: MessageSquare },
     { label: "Manifesto", href: "/admin/articles", icon: FileText },
-    { label: "Lookbook", href: "/admin/lookbook", icon: Camera },
     { label: "Careers", href: "/admin/careers", icon: Briefcase },
   ];
 
