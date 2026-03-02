@@ -36,7 +36,7 @@ export const CategorySelector = () => {
       >
         <div className="absolute inset-0 bg-gray-900">
           <img
-            src="https://images.unsplash.com/photo-1550614000-0e1fe3588fbc?q=80&w=1200"
+            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200"
             alt="Womens Category"
             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0 scale-105"
           />

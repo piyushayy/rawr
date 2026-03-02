@@ -78,6 +78,53 @@ export default function FAQPage() {
               specific measurements.
             </AccordionContent>
           </AccordionItem>
+          <AccordionItem
+            value="item-5"
+            className="border-2 border-rawr-black bg-white px-4"
+          >
+            <AccordionTrigger className="font-heading font-bold text-xl uppercase hover:text-rawr-red">
+              Do you ship internationally?
+            </AccordionTrigger>
+            <AccordionContent className="font-body text-gray-600">
+              Yes, we ship worldwide. Shipping costs and delivery times vary by country. International customers are responsible for any customs duties or taxes imposed by their local government.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem
+            value="item-6"
+            className="border-2 border-rawr-black bg-white px-4"
+          >
+            <AccordionTrigger className="font-heading font-bold text-xl uppercase hover:text-rawr-red">
+              How can I track my order?
+            </AccordionTrigger>
+            <AccordionContent className="font-body text-gray-600">
+              Once your order has been dispatched, you will receive an email containing a tracking number and a link to view the real-time status of your package. You can also track orders directly in your RAWR Account Dashboard under the 'Orders' tab.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem
+            value="item-7"
+            className="border-2 border-rawr-black bg-white px-4"
+          >
+            <AccordionTrigger className="font-heading font-bold text-xl uppercase hover:text-rawr-red">
+              What payment methods do you accept?
+            </AccordionTrigger>
+            <AccordionContent className="font-body text-gray-600">
+              We accept all major credit cards (Visa, MasterCard, American Express), PayPal, Apple Pay, and Google Pay. All transactions are securely encrypted.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem
+            value="item-8"
+            className="border-2 border-rawr-black bg-white px-4"
+          >
+            <AccordionTrigger className="font-heading font-bold text-xl uppercase hover:text-rawr-red">
+              Can I modify or cancel my order?
+            </AccordionTrigger>
+            <AccordionContent className="font-body text-gray-600">
+              Due to the limited and fast-paced nature of our drops, all sales are final once confirmed. We cannot modify sizes, colors, or shipping addresses after the order is processed. Please double-check your cart before checking out.
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
 
         <div className="mt-12 text-center bg-gray-100 p-8 border-2 border-dashed border-gray-300 rounded-lg">

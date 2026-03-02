@@ -205,7 +205,7 @@ export default async function Home() {
         <h2 className="text-5xl md:text-8xl font-heading font-black text-white mb-8 uppercase leading-none">
           Wear It
           <br />
-          Or Fear It
+          Or Hear It
         </h2>
         <p className="max-w-xl mx-auto text-white font-bold text-xl mb-8">
           We don&apos;t do mass production. We hunt for the rarest pieces so you

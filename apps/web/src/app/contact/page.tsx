@@ -22,30 +22,32 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold uppercase mb-6 flex items-center gap-2">
                 <MapPin className="text-rawr-red" /> HQ
               </h2>
-              <p className="text-gray-600 font-medium">
+              <p className="text-gray-600 font-medium whitespace-pre-line leading-relaxed">
                 RAWR Archive
-                <br />
-                123 Streetwear Blvd
-                <br />
-                Los Angeles, CA 90012
-                <br />
+                New Delhi, India
                 Earth
               </p>
             </div>
 
-            <div className="bg-white border-2 border-rawr-black p-8 shadow-[8px_8px_0px_0px_#050505]">
-              <h2 className="text-2xl font-bold uppercase mb-6 flex items-center gap-2">
-                <Mail className="text-rawr-red" /> Email
-              </h2>
-              <p className="text-gray-600 font-medium mb-4">
-                For general inquiries, orders, or just to say pinned.
-              </p>
-              <a
-                href="mailto:support@rawr.gg"
-                className="text-xl font-bold underline decoration-rawr-red decoration-2 underline-offset-4 hover:text-rawr-red"
-              >
-                support@rawr.gg
-              </a>
+            <div className="bg-white border-2 border-rawr-black p-8 shadow-[8px_8px_0px_0px_#050505] space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold uppercase mb-2 flex items-center gap-2">
+                  <Mail className="text-rawr-red" /> Email
+                </h2>
+                <a
+                  href="mailto:supportrawr@gmail.com"
+                  className="text-lg font-bold underline decoration-rawr-red decoration-2 underline-offset-4 hover:text-rawr-red"
+                >
+                  supportrawr@gmail.com
+                </a>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold uppercase mb-2 flex items-center gap-2">
+                  <Phone className="text-rawr-red" /> Phone
+                </h2>
+                <p className="text-lg font-bold">9911390066</p>
+              </div>
             </div>
           </div>
 
@@ -54,12 +56,15 @@ export default function ContactPage() {
             <h2 className="text-2xl font-bold uppercase mb-6">
               Send a Message
             </h2>
-            <form className="space-y-4">
+            {/* To hook up Google Forms, replace YOUR_GOOGLE_FORM_URL and add the correct 'name' attributes (e.g. entry.12345) to input fields */}
+            <form action="YOUR_GOOGLE_FORM_URL" method="POST" target="_blank" className="space-y-4">
               <div>
                 <label className="block text-sm font-bold uppercase mb-2 text-gray-400">
                   Name
                 </label>
                 <input
+                  name="entry.123456789" // Replace with real Google Form entry ID
+                  required
                   className="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-rawr-red text-white"
                   placeholder="YOUR NAME"
                 />
@@ -69,6 +74,8 @@ export default function ContactPage() {
                   Email
                 </label>
                 <input
+                  name="entry.987654321" // Replace with real Google Form entry ID
+                  required
                   className="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-rawr-red text-white"
                   placeholder="YOUR EMAIL"
                   type="email"
@@ -76,25 +83,17 @@ export default function ContactPage() {
               </div>
               <div>
                 <label className="block text-sm font-bold uppercase mb-2 text-gray-400">
-                  Subject
-                </label>
-                <select className="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-rawr-red text-white">
-                  <option>Order Issue</option>
-                  <option>Collaboration</option>
-                  <option>Just saying hi</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-bold uppercase mb-2 text-gray-400">
                   Message
                 </label>
                 <textarea
+                  name="entry.555555555" // Replace with real Google Form entry ID
+                  required
                   className="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-rawr-red text-white h-32"
-                  placeholder="TYPE SHIT..."
+                  placeholder="Tell us what's up..."
                 />
               </div>
-              <Button className="w-full bg-rawr-red hover:bg-red-600 text-white font-bold uppercase tracking-widest py-6">
-                Send Message
+              <Button type="submit" className="w-full bg-rawr-red hover:bg-red-600 text-white font-bold uppercase tracking-widest py-6">
+                Submit via Google Forms
               </Button>
             </form>
           </div>
