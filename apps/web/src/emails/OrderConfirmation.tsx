@@ -73,7 +73,7 @@ export const OrderConfirmationEmail = ({
         <Hr style={hr} />
 
         <Text style={footer}>
-          Wear it or fear it.
+          Wear it or hear it.
           <br />
           RAWR STORE 2026.
         </Text>

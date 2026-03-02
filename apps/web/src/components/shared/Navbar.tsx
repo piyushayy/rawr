@@ -52,7 +52,7 @@ export const Navbar = ({ user, clout = 0 }: NavbarProps) => {
         >
           {[...Array(10)].map((_, i) => (
             <span key={i} className="flex-shrink-0">
-              🚀 FREE SHIPPING ON ORDERS LATER THAN $200 🚀 WEAR IT OR FEAR IT
+              🚀 FREE SHIPPING ON ORDERS LATER THAN $200 🚀 WEAR IT OR HEAR IT
               ☠️ LIMITED QUOTAS ☠️
             </span>
           ))}
@@ -306,7 +306,7 @@ export const Navbar = ({ user, clout = 0 }: NavbarProps) => {
 
                   <div className="mt-12 text-sm text-gray-500 font-body normal-case">
                     <p>© 2026 RAWR STORE.</p>
-                    <p>WEAR IT OR FEAR IT.</p>
+                    <p>WEAR IT OR HEAR IT.</p>
                   </div>
                 </div>
               </div>
