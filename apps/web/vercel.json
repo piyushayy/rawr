@@ -46,14 +46,6 @@
     {
       "path": "/api/cron",
       "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/marketing",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/drop-notifications",
-      "schedule": "*/15 * * * *"
     }
   ]
 }
