@@ -55,18 +55,23 @@ export default async function ProductPage({
   const { id } = await params;
   const product = await getProductById(id);
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   let clout = 0;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("clout_score")
-      .eq("id", user.id)
-      .single();
-    if (profile) clout = profile.clout_score;
+  let user = null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("clout_score")
+        .eq("id", user.id)
+        .single();
+      if (profile) clout = profile.clout_score;
+    }
+  } catch (error) {
+    console.warn("Product page session fallback:", error);
   }
 
   if (!product) {
