@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CurrencySwitcher } from "./CurrencySwitcher";
 
 export const Footer = () => {
   return (
@@ -69,7 +68,6 @@ export const Footer = () => {
           <p className="font-body text-xs text-gray-500 uppercase">
             © {new Date().getFullYear()} RAWR STORE. ALL RIGHTS RESERVED.
           </p>
-          <CurrencySwitcher />
         </div>
       </div>
     </footer>

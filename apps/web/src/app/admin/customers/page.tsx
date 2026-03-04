@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Eye, DollarSign, ShoppingBag, Search, Filter } from "lucide-react";
+import { Eye, IndianRupee, ShoppingBag, Search, Filter } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function CustomerListPage({
@@ -159,7 +159,7 @@ export default async function CustomerListPage({
             variant={segment === "whales" ? "destructive" : "outline"}
             className="rounded-full h-8 px-4 text-xs font-bold"
           >
-            Whales ($500+)
+            Whales (₹50k+)
           </Button>
         </Link>
         <Link href={`/admin/customers?segment=vip&sort=${sort}&q=${query}`}>
@@ -264,7 +264,7 @@ export default async function CustomerListPage({
                 </td>
                 <td className="p-4">
                   <div className="flex items-center gap-1 text-green-700 font-bold">
-                    <DollarSign className="w-3 h-3" />
+                    <IndianRupee className="w-3 h-3" />
                     <span>{customer.total_spend?.toFixed(2)}</span>
                   </div>
                 </td>

@@ -140,7 +140,7 @@ export default async function LoyaltyPortal() {
             <TrendingUp className="w-8 h-8 mx-auto text-rawr-red" />
             <h4 className="font-black uppercase">How To Earn</h4>
             <p className="text-sm text-gray-400">
-              Earn 100 clout for every $1 spent. Buy drops, gain power.
+              Earn 100 clout for every ₹100 spent. Buy drops, gain power.
             </p>
           </div>
           <div className="bg-gray-900 p-6 border border-gray-800 text-center space-y-4">

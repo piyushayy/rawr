@@ -52,7 +52,7 @@ export const Navbar = ({ user, clout = 0 }: NavbarProps) => {
         >
           {[...Array(10)].map((_, i) => (
             <span key={i} className="flex-shrink-0">
-              🚀 FREE SHIPPING ON ORDERS LATER THAN $200 🚀 WEAR IT OR HEAR IT
+              🚀 FREE SHIPPING ON ORDERS OVER ₹4999 🚀 WEAR IT OR HEAR IT
               ☠️ LIMITED QUOTAS ☠️
             </span>
           ))}

@@ -19,7 +19,7 @@ export const AnnouncementBar = () => {
       >
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <div className="flex-1 text-center">
-            <span>Free Worldwide Shipping on Orders Over $150</span>
+            <span>Free Shipping in India on Orders Over ₹4999</span>
             <span className="hidden md:inline mx-2">//</span>
             <span className="hidden md:inline">No Restocks. Ever.</span>
           </div>

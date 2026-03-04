@@ -43,11 +43,11 @@ export default function ShippingPage() {
               <p className="text-gray-600 leading-relaxed">
                 We use UPS and USPS Priority.
                 <br />
-                <strong>Standard:</strong> 3-5 Business Days ($10 flat rate)
+                <strong>Standard:</strong> 3-5 Business Days (₹150 flat rate)
                 <br />
-                <strong>Express:</strong> 1-2 Business Days ($25)
+                <strong>Express:</strong> 1-2 Business Days (₹500)
                 <br />
-                <strong>Free Shipping:</strong> On orders over $150.
+                <strong>Free Shipping:</strong> On orders over ₹4999.
               </p>
             </div>
           </div>
@@ -58,14 +58,12 @@ export default function ShippingPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold uppercase mb-2">
-                International
+                All Over India
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                We ship worldwide. International shipping is calculated at
-                checkout based on weight and destination.
+                We ship PAN India covering 20,000+ pin codes.
                 <br />
-                <span className="text-red-500 font-bold">NOTE:</span> Customs
-                duties and taxes are the responsibility of the buyer.
+                <span className="text-red-500 font-bold">NOTE:</span> Deliveries to remote locations might take an additional 2-3 business days.
               </p>
             </div>
           </div>

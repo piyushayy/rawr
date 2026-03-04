@@ -22,7 +22,7 @@ export const ShippingAccordion = () => {
         <AccordionContent className="text-gray-600 font-body text-sm leading-relaxed pb-4">
           <p className="font-bold mb-2">Ships within 24 hours.</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Free Global Express Shipping on orders over $150.</li>
+            <li>Free Express Shipping across India on orders over ₹4999.</li>
             <li>Standard Shipping: 3-5 business days via DHL/FedEx.</li>
             <li>Tracking provided immediately upon dispatch.</li>
           </ul>
