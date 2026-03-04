@@ -36,7 +36,10 @@ export async function signup(formData: FormData) {
   const redirectUrl = (formData.get("redirectUrl") as string) || "/";
 
   // Get the origin dynamically
-  const origin = (await headers()).get("origin");
+  let origin = (await headers()).get("origin");
+  if (!origin) {
+    origin = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  }
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -63,7 +66,10 @@ export async function signup(formData: FormData) {
 
 export async function loginWithGoogle(redirectUrl: string = "/") {
   const supabase = await createClient();
-  const origin = (await headers()).get("origin");
+  let origin = (await headers()).get("origin");
+  if (!origin) {
+    origin = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
