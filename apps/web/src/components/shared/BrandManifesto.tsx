@@ -88,13 +88,15 @@ export const BrandManifesto = ({ items }: { items?: Product[] }) => {
             </div>
 
             <div className="relative max-w-4xl mx-auto aspect-[4/5] md:aspect-[16/9] border-4 border-rawr-black bg-gray-900 group">
-              {/* Using a placeholder editorial image. */}
+              {/* Using the first product image dynamically. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200"
-                alt="Lookbook Editorial"
-                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-              />
+              {items[0]?.images?.[0] && (
+                <img
+                  src={items[0].images[0]}
+                  alt="Lookbook Editorial"
+                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700 grayscale hover:grayscale-0"
+                />
+              )}
 
               {/* Hotspot 1 */}
               {items[0] && (
