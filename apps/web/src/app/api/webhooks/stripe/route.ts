@@ -28,7 +28,11 @@ export async function POST(req: Request) {
 
     // If we have an orderId, update it directly
     if (orderId && orderId !== "pending" && orderId !== "temp-id") {
-      const supabase = await createClient();
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
 
       const shipping = session.shipping;
       let addressData = null;
@@ -52,7 +56,7 @@ export async function POST(req: Request) {
       }
 
       // Update Order Status and Address
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from("orders")
         .update({
           status: "paid",
@@ -66,7 +70,7 @@ export async function POST(req: Request) {
       }
 
       // Retrieve Order to get User ID and Email
-      const { data: order } = await supabase
+      const { data: order } = await supabaseAdmin
         .from("orders")
         .select("*, profiles(email)") // Assuming relations or just get user_id
         .eq("id", orderId)
@@ -83,7 +87,7 @@ export async function POST(req: Request) {
       if (order && order.user_id) {
         // 1. Log the Purchase Event
         const purchaseAmount = session.amount / 100;
-        await supabase.from("customer_events").insert({
+        await supabaseAdmin.from("customer_events").insert({
           customer_id: order.user_id,
           event_type: "PURCHASE",
           event_data: {
@@ -98,14 +102,14 @@ export async function POST(req: Request) {
         // 2. Ensure customer CDP profile exists and update LTV / Order Count
         // Use RPC or an upsert to gracefully handle incrementing without race conditions
         // For MVP: direct fetch and update
-        const { data: crmUser } = await supabase
+        const { data: crmUser } = await supabaseAdmin
           .from("crm_customers")
           .select("*")
           .eq("id", order.user_id)
           .single();
 
         if (crmUser) {
-          await supabase
+          await supabaseAdmin
             .from("crm_customers")
             .update({
               total_orders: crmUser.total_orders + 1,
@@ -115,7 +119,7 @@ export async function POST(req: Request) {
             .eq("id", order.user_id);
         } else if (email) {
           // Create them if they don't exist yet (e.g., existing users before CRM deployment)
-          await supabase.from("crm_customers").insert({
+          await supabaseAdmin.from("crm_customers").insert({
             id: order.user_id,
             email: email,
             total_orders: 1,

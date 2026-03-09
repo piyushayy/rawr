@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { CartItem } from "@/types";
 import { getTier, TIERS } from "@/utils/tiers";
 
@@ -14,6 +15,10 @@ export interface CheckoutUser {
 
 export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
   const supabase = await createClient();
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
   // 1. Verify Prices & Stock
   const productIds = items.map((item) => item.id);
@@ -110,14 +115,14 @@ export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
     let error = null;
 
     if (item.variant_id) {
-      const { data, error: rpcError } = await supabase.rpc(
+      const { data, error: rpcError } = await supabaseAdmin.rpc(
         "decrement_variant_stock",
         { p_variant_id: item.variant_id, p_quantity: item.quantity },
       );
       success = !!data;
       error = rpcError;
     } else {
-      const { data, error: rpcError } = await supabase.rpc("decrement_stock", {
+      const { data, error: rpcError } = await supabaseAdmin.rpc("decrement_stock", {
         p_id: item.product_id,
         quantity: item.quantity,
       });
@@ -130,12 +135,12 @@ export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
       // Rollback
       for (const prev of decrementedItems) {
         if (prev.variant_id) {
-          await supabase.rpc("increment_variant_stock", {
+          await supabaseAdmin.rpc("increment_variant_stock", {
             p_variant_id: prev.variant_id,
             p_quantity: prev.qty,
           });
         } else {
-          await supabase.rpc("increment_stock", {
+          await supabaseAdmin.rpc("increment_stock", {
             p_id: prev.id,
             quantity: prev.qty,
           });
@@ -152,7 +157,7 @@ export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
   }
 
   // 4. Create Order
-  const { data: order, error: orderError } = await supabase
+  const { data: order, error: orderError } = await supabaseAdmin
     .from("orders")
     .insert({
       user_id: user.id || null, // Allow null for guests
@@ -169,12 +174,12 @@ export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
     // Rollback Inventory
     for (const prev of decrementedItems) {
       if (prev.variant_id) {
-        await supabase.rpc("increment_variant_stock", {
+        await supabaseAdmin.rpc("increment_variant_stock", {
           p_variant_id: prev.variant_id,
           p_quantity: prev.qty,
         });
       } else {
-        await supabase.rpc("increment_stock", {
+        await supabaseAdmin.rpc("increment_stock", {
           p_id: prev.id,
           quantity: prev.qty,
         });
@@ -192,7 +197,7 @@ export async function processOrder(items: CartItem[], user: CheckoutUser = {}) {
     price: item.price,
   }));
 
-  const { error: itemsError } = await supabase
+  const { error: itemsError } = await supabaseAdmin
     .from("order_items")
     .insert(orderItems);
 

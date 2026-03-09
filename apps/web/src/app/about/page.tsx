@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
 
@@ -11,7 +12,14 @@ export default function AboutPage() {
     <div className="bg-rawr-white min-h-screen">
       {/* Hero */}
       <section className="relative h-[60vh] flex items-center justify-center bg-black overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-rawr-black/50" />
+        <div className="absolute inset-0 z-0 opacity-50">
+          <Image
+            src="https://images.unsplash.com/photo-1544642899-f0d6e5f6ed6f?q=80&w=2568&auto=format&fit=crop"
+            alt="Warehouse"
+            fill
+            className="object-cover"
+          />
+        </div>
         <div className="relative z-10 text-center max-w-4xl px-4">
           <h1 className="text-6xl md:text-9xl font-heading font-black text-white uppercase leading-none mix-blend-difference">
             No More
@@ -42,14 +50,13 @@ export default function AboutPage() {
               that money can't buy at a mall.
             </p>
           </div>
-          <div className="relative aspect-square border-2 border-rawr-black bg-rawr-red p-4 rotate-2 hover:rotate-0 transition-transform duration-500 flex items-center justify-center">
-            <p className="font-heading text-4xl font-black uppercase text-white tracking-widest text-center">
-              Scarcity
-              <br />
-              Is The
-              <br />
-              Product.
-            </p>
+          <div className="relative aspect-square border-2 border-rawr-black bg-gray-100 p-4 rotate-2 hover:rotate-0 transition-transform duration-500">
+            <Image
+              src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop"
+              alt="Clothing Rack"
+              fill
+              className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
+            />
           </div>
         </div>
       </section>

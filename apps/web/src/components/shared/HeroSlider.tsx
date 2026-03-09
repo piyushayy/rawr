@@ -8,20 +8,37 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
-interface Slide {
-  id: string;
-  image: string;
-  title: string;
-  subtitle: string;
-  cta: string;
-  link: string;
-}
+const HERO_SLIDES = [
+  {
+    id: 1,
+    image:
+      "https://images.unsplash.com/photo-1523398002811-999ca8dec234?q=80&w=2000&auto=format&fit=crop",
+    title: "DROP 001 // GENESIS",
+    subtitle: "The Beginning of the End.",
+    cta: "SHOP THE DROP",
+    link: "/shop",
+  },
+  {
+    id: 2,
+    image:
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2000&auto=format&fit=crop",
+    title: "NO MERCY",
+    subtitle: "Limited Edition Outerwear. 50 Units Only.",
+    cta: "VIEW COLLECTION",
+    link: "/shop?category=outerwear",
+  },
+  {
+    id: 3,
+    image:
+      "https://images.unsplash.com/photo-1550973886-df96c6e7a1b4?q=80&w=2000&auto=format&fit=crop",
+    title: "THE CULT",
+    subtitle: "Join the hierarchy. Earn clout.",
+    cta: "JOIN NOW",
+    link: "/login",
+  },
+];
 
-interface HeroSliderProps {
-  slides?: Slide[];
-}
-
-export const HeroSlider = ({ slides = [] }: HeroSliderProps) => {
+export const HeroSlider = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
     Autoplay({ delay: 5000 }),
   ]);
@@ -34,26 +51,11 @@ export const HeroSlider = ({ slides = [] }: HeroSliderProps) => {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  if (!slides || slides.length === 0) {
-    return (
-      <section className="relative h-[85vh] bg-rawr-black overflow-hidden border-b-2 border-rawr-black flex flex-col items-center justify-center px-4">
-        {/* Oblique Slash Overlay Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
-        <div className="relative z-10 space-y-8 text-center">
-          <h1 className="text-7xl md:text-9xl font-heading font-black text-white uppercase tracking-tighter drop-shadow-[4px_4px_0_rgba(230,0,0,1)]">RAWR IS COMING</h1>
-          <p className="text-xl md:text-3xl text-gray-400 font-bold max-w-2xl font-body uppercase tracking-widest bg-black/50 p-4 border border-white/20 backdrop-blur-sm mx-auto">
-            PREPARE FOR THE DROP
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="relative h-[85vh] bg-rawr-black overflow-hidden border-b-2 border-rawr-black group">
       <div className="embla h-full" ref={emblaRef}>
         <div className="embla__container h-full flex">
-          {slides.map((slide) => (
+          {HERO_SLIDES.map((slide) => (
             <div
               key={slide.id}
               className="embla__slide relative flex-[0_0_100%] min-w-0"

@@ -32,9 +32,15 @@ export const MegaMenu = ({ isOpen, onClose }: MegaMenuProps) => {
           </h3>
           <Link
             href="/shop?sort=newest"
-            className="group block relative aspect-[3/4] overflow-hidden border-2 border-transparent bg-rawr-black mb-2"
+            className="group block relative aspect-[3/4] overflow-hidden border-2 border-transparent bg-gray-100 mb-2"
           >
-            <div className="absolute inset-0 bg-rawr-red/20 group-hover:bg-rawr-red/40 transition-colors" />
+            <Image
+              src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop"
+              alt="Latest Drop"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:opacity-70 transition-opacity" />
             <span className="absolute bottom-4 left-4 text-white px-2 font-black text-2xl uppercase font-heading drop-shadow-md">
               System
               <br />
@@ -58,32 +64,56 @@ export const MegaMenu = ({ isOpen, onClose }: MegaMenuProps) => {
           <div className="grid grid-cols-2 gap-4">
             <Link
               href="/shop?category=tops"
-              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black border border-gray-800 hover:border-rawr-red transition-colors"
+              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black"
             >
+              <Image
+                src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop"
+                alt="Tops"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-60 group-hover:opacity-100"
+              />
               <span className="absolute inset-0 flex items-center justify-center text-white font-heading font-black uppercase text-2xl drop-shadow-lg tracking-widest pointer-events-none">
                 Tops
               </span>
             </Link>
             <Link
               href="/shop?category=bottoms"
-              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black border border-gray-800 hover:border-rawr-red transition-colors"
+              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black"
             >
+              <Image
+                src="https://images.unsplash.com/photo-1624378439575-d1ead6bb0011?q=80&w=400&auto=format&fit=crop"
+                alt="Bottoms"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-60 group-hover:opacity-100"
+              />
               <span className="absolute inset-0 flex items-center justify-center text-white font-heading font-black uppercase text-2xl drop-shadow-lg tracking-widest pointer-events-none">
                 Bottoms
               </span>
             </Link>
             <Link
               href="/shop?category=outerwear"
-              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black border border-gray-800 hover:border-rawr-red transition-colors"
+              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black"
             >
+              <Image
+                src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=400&auto=format&fit=crop"
+                alt="Outerwear"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-60 group-hover:opacity-100"
+              />
               <span className="absolute inset-0 flex items-center justify-center text-white font-heading font-black uppercase text-2xl drop-shadow-lg tracking-widest pointer-events-none">
                 Outerwear
               </span>
             </Link>
             <Link
               href="/shop?category=accessories"
-              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black border border-gray-800 hover:border-rawr-red transition-colors"
+              className="group block relative aspect-[16/9] overflow-hidden bg-rawr-black"
             >
+              <Image
+                src="https://images.unsplash.com/photo-1576871337622-98d48d1cf531?q=80&w=400&auto=format&fit=crop"
+                alt="Accessories"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-60 group-hover:opacity-100"
+              />
               <span className="absolute inset-0 flex items-center justify-center text-white font-heading font-black uppercase text-2xl drop-shadow-lg tracking-widest pointer-events-none">
                 Hardware
               </span>

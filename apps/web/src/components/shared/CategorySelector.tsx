@@ -11,8 +11,13 @@ export const CategorySelector = () => {
         href="/shop?category=men"
         className="relative group block overflow-hidden border-b-2 md:border-b-0 md:border-r-2 border-rawr-black cursor-crosshair"
       >
-        <div className="absolute inset-0 bg-gray-100">
-          <div className="absolute inset-0 bg-rawr-black/10 group-hover:bg-transparent transition-colors duration-500" />
+        <div className="absolute inset-0 bg-gray-200">
+          <img
+            src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=1200"
+            alt="Mens Category"
+            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0 scale-105"
+          />
+          <div className="absolute inset-0 bg-rawr-black/30 group-hover:bg-transparent transition-colors duration-500" />
         </div>
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-8">
           <h2 className="text-6xl md:text-8xl font-heading font-black uppercase text-white drop-shadow-[4px_4px_0_rgba(0,0,0,1)] group-hover:-translate-y-4 group-hover:scale-110 transition-transform duration-500">
@@ -29,8 +34,13 @@ export const CategorySelector = () => {
         href="/shop?category=women"
         className="relative group block overflow-hidden border-rawr-black cursor-crosshair"
       >
-        <div className="absolute inset-0 bg-rawr-black">
-          <div className="absolute inset-0 bg-rawr-red/30 group-hover:bg-transparent transition-colors duration-500" />
+        <div className="absolute inset-0 bg-gray-900">
+          <img
+            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200"
+            alt="Womens Category"
+            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0 scale-105"
+          />
+          <div className="absolute inset-0 bg-rawr-black/30 group-hover:bg-transparent transition-colors duration-500" />
         </div>
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-8">
           <h2 className="text-6xl md:text-8xl font-heading font-black uppercase text-white drop-shadow-[4px_4px_0_rgba(0,0,0,1)] group-hover:-translate-y-4 group-hover:scale-110 transition-transform duration-500">
